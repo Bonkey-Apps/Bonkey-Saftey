@@ -1,5 +1,5 @@
 # bonkey-saftey :: adlists.txt
-# Remote adlists registered by install.ps1. One URL per line; # is a comment.
+# Remote adlists to add under Pi-hole -> Adlists. One URL per line.
 # Order is not significant -- Pi-hole merges them all into gravity.
 #
 # Honest scoping: only the gambling list below does heavy lifting for the

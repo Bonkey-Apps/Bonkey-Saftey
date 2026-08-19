@@ -1,8 +1,8 @@
 # bonkey-safety :: regex-deny.txt
-# Loaded into Pi-hole as domainlist type 2 (regex deny).
+# Paste into Pi-hole under Domains -> Regex filter, as Deny entries.
 # Catches the ad networks above at whole-domain granularity, so new subdomains
 # spun up by the vendor are covered without editing ms-game-ads.txt.
-# One POSIX ERE per line. Lines starting with # are ignored by install.ps1.
+# One POSIX ERE per line. Lines starting with # are notes, do not paste them.
 
 (^|\.)taboola\.com$
 (^|\.)taboolasyndication\.com$

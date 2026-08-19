@@ -3,7 +3,8 @@
 # Minesweeper, Jigsaw, Sudoku, Ultimate Word Games) and the MSN ad broker they
 # share with Windows Widgets / MSN News.
 #
-# Format: hosts (0.0.0.0). Loaded into Pi-hole as a file:// adlist.
+# Format: hosts (0.0.0.0). Add to Pi-hole as an adlist by its raw URL:
+#   https://raw.githubusercontent.com/Bonkey-Apps/Bonkey-Saftey/main/lists/ms-game-ads.txt
 # Gambling/casino CREATIVES are handled by the StevenBlack gambling-only list
 # in adlists.txt -- this file blocks the delivery pipeline they arrive through.
 #

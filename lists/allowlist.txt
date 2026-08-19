@@ -1,5 +1,5 @@
 # bonkey-safety :: allowlist.txt
-# Loaded into Pi-hole as domainlist type 1 (exact allow).
+# Paste into Pi-hole under Domains -> Exact match, as Allow entries.
 # These override the broad third-party adlists in adlists.txt. Every entry here
 # is something that BREAKS if it gets blocked -- do not prune this file to
 # "tighten" filtering.
