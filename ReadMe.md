@@ -32,15 +32,30 @@ Because the repo is public, that URL is a live adlist — edit `ms-game-ads.txt`
 here, push, and Pi-hole picks the change up on its next gravity run. No
 redeployment, no copying files into the container.
 
-### 2. Regex denies
+### 2. Allowlist — subscribe, do not paste
+
+Pi-hole v6 can subscribe to allow lists the same way it subscribes to
+blocklists. Pi-hole admin → **Lists** → **Add a new list**, set the type to
+**Allow list**, and use:
+
+```
+https://raw.githubusercontent.com/Bonkey-Apps/Bonkey-Saftey/main/lists/allowlist.txt
+```
+
+Internally Pi-hole stores this in the same `adlist` table with `type = 1`
+(`0` is a blocklist), and compiles the domains into the `antigravity` table on
+each gravity run. Practical upshot: the allowlist stays version-controlled here
+and updates itself, instead of drifting as twenty-five hand-pasted entries that
+nobody remembers editing.
+
+### 3. Regex denies — these must be pasted
 
 Pi-hole admin → **Domains** → *Regex filter* tab → **Deny**. Paste each
 non-comment line from `lists/regex-deny.txt`.
 
-### 3. Allowlist
-
-Pi-hole admin → **Domains** → *Exact match* tab → **Allow**. Paste each
-non-comment line from `lists/allowlist.txt`.
+Regex rules are the one part that cannot be subscribed. Gravity and antigravity
+hold exact domains only, so regex entries live in the `domainlist` table and
+have to be entered through the UI or API. Re-paste after any edit to that file.
 
 ### 4. Rebuild gravity
 

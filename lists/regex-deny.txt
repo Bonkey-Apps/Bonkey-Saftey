@@ -1,4 +1,4 @@
-# bonkey-safety :: regex-deny.txt
+# bonkey-saftey :: regex-deny.txt
 # Paste into Pi-hole under Domains -> Regex filter, as Deny entries.
 # Catches the ad networks above at whole-domain granularity, so new subdomains
 # spun up by the vendor are covered without editing ms-game-ads.txt.
