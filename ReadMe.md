@@ -14,56 +14,52 @@ Plain text lists, no scripts. Targets the Docker Pi-hole v6 described in
 |---|---|
 | `adlists.txt` | Third-party adlist URLs to register with Pi-hole. |
 | `lists/ms-game-ads.txt` | Our own hosts-format list — the MSN ad broker and the ad networks the Casual Games suite pulls video interstitials from. |
-| `lists/regex-deny.txt` | Whole-domain regex denies for those same ad networks, so new vendor subdomains are covered without edits. |
+| `lists/ad-networks.txt` | ABP-syntax block list covering those same ad networks at whole-domain level, so new vendor subdomains are caught without edits. |
 | `lists/allowlist.txt` | Exact allows that override the broad third-party lists. **Do not prune this to tighten filtering** — every entry breaks something if blocked. |
 
 ## Install
 
-### 1. Adlists
+Every file here is subscribed by URL — nothing gets pasted, and nothing is
+copied into the container. Edit a list, push, and Pi-hole picks it up on the
+next gravity run.
 
-Pi-hole admin → **Lists** → add each URL in `adlists.txt`, plus this repo's own
-list:
+### 1. Block lists
+
+Pi-hole admin → **Lists** → **Add a new list**, type **Block list**. Add each
+URL from `adlists.txt`, plus both of this repo's own lists:
 
 ```
 https://raw.githubusercontent.com/Bonkey-Apps/Bonkey-Saftey/main/lists/ms-game-ads.txt
+https://raw.githubusercontent.com/Bonkey-Apps/Bonkey-Saftey/main/lists/ad-networks.txt
 ```
 
-Because the repo is public, that URL is a live adlist — edit `ms-game-ads.txt`
-here, push, and Pi-hole picks the change up on its next gravity run. No
-redeployment, no copying files into the container.
+### 2. Allow list
 
-### 2. Allowlist — subscribe, do not paste
-
-Pi-hole v6 can subscribe to allow lists the same way it subscribes to
-blocklists. Pi-hole admin → **Lists** → **Add a new list**, set the type to
-**Allow list**, and use:
+Same page, but set the type to **Allow list**:
 
 ```
 https://raw.githubusercontent.com/Bonkey-Apps/Bonkey-Saftey/main/lists/allowlist.txt
 ```
 
-Internally Pi-hole stores this in the same `adlist` table with `type = 1`
-(`0` is a blocklist), and compiles the domains into the `antigravity` table on
-each gravity run. Practical upshot: the allowlist stays version-controlled here
-and updates itself, instead of drifting as twenty-five hand-pasted entries that
-nobody remembers editing.
+Pi-hole stores this in the same `adlist` table with `type = 1` (`0` is a block
+list) and compiles it into the `antigravity` table, which is what lets it
+override the broad third-party lists.
 
-### 3. Regex denies — these must be pasted
-
-Pi-hole admin → **Domains** → *Regex filter* tab → **Deny**. Paste each
-non-comment line from `lists/regex-deny.txt`.
-
-Regex rules are the one part that cannot be subscribed. Gravity and antigravity
-hold exact domains only, so regex entries live in the `domainlist` table and
-have to be entered through the UI or API. Re-paste after any edit to that file.
-
-### 4. Rebuild gravity
+### 3. Rebuild gravity
 
 ```bash
 docker exec pihole pihole -g
 ```
 
 Nothing takes effect until this runs.
+
+### Version requirement
+
+`ad-networks.txt` uses ABP syntax (`||example.com^`, which matches the domain
+and all its subdomains). That needs Pi-hole Core ≥ 5.16 / FTL ≥ 5.22;
+subscribed allow lists need v6. The v6 deployment in
+`PIHOLE_DEPLOYMENT_PLAN.md` satisfies both. On anything older, both files are
+still readable by hand but will not install as written.
 
 ## Two layers, on purpose
 
@@ -82,7 +78,7 @@ DandelionSprout list covers console system menus and its own author notes it
 held roughly eleven relevant entries. Neither meaningfully touches Windows Store
 games. They are kept for cheap household breadth, not for Solitaire.
 
-The Casual Games coverage is `lists/ms-game-ads.txt` and `lists/regex-deny.txt`
+The Casual Games coverage is `lists/ms-game-ads.txt` and `lists/ad-networks.txt`
 in this repo. If those two stop working, the pack stops working.
 
 ## Known-good exceptions
@@ -115,6 +111,7 @@ Expect strong but not total suppression. Microsoft has been moving some Casual
 Games ad delivery onto first-party endpoints that share hostnames with telemetry
 you want working, and those cannot be blocked without collateral damage.
 
-If a game still shows ads, watch `pihole -t` while it loads, find the unfamiliar
-domain that fires immediately before the ad, and add it to
-`lists/ms-game-ads.txt` under the right section. Push, then rerun `pihole -g`.
+If a game still shows ads, watch `pihole -t` while it loads and find the
+unfamiliar domain that fires immediately before the ad. Add a single host to
+`lists/ms-game-ads.txt`, or the whole vendor domain to `lists/ad-networks.txt`
+as `||vendor.com^`. Push, then rerun `pihole -g`.

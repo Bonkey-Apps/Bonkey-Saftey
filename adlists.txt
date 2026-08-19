@@ -5,7 +5,7 @@
 # Honest scoping: only the gambling list below does heavy lifting for the
 # Microsoft Casual Games problem. The other two are cheap, low-risk breadth for
 # the rest of the household's gaming, NOT the reason this pack works. The
-# Casual Games coverage comes from lists/ms-game-ads.txt and lists/regex-deny.txt
+# Casual Games coverage comes from lists/ms-game-ads.txt and lists/ad-networks.txt
 # in this repo.
 
 # Gambling / casino / sportsbook domains -- ~145 KB, actively maintained.

@@ -1,0 +1,76 @@
+# bonkey-saftey :: ad-networks.txt
+# Subscribe to this file in Pi-hole as a BLOCK list (Lists -> Add, type
+# "Block list"):
+#   https://raw.githubusercontent.com/Bonkey-Apps/Bonkey-Saftey/main/lists/ad-networks.txt
+#
+# Format: ABP syntax. ||example.com^ blocks example.com AND every subdomain,
+# so a vendor spinning up a new host is covered without editing this file.
+# Requires Pi-hole Core >= 5.16 / FTL >= 5.22. v6 qualifies.
+#
+# This replaces the old regex-deny.txt. Only the strict ||domain^ form is
+# parsed -- no wildcards, no alternation, no @@ exceptions. Allowances live in
+# lists/allowlist.txt, which is subscribed separately as an allow list.
+
+##### Native-ad / content-recommendation vendors ###############################
+||taboola.com^
+||taboolasyndication.com^
+||outbrain.com^
+||engageya.com^
+||revcontent.com^
+||mgid.com^
+||zemanta.com^
+
+##### Mobile + in-app ad SDKs bundled into Store games #########################
+||vungle.com^
+||inmobi.com^
+||adcolony.com^
+||applovin.com^
+||chartboost.com^
+||ironsrc.com^
+||supersonicads.com^
+||unityads.unity3d.com^
+||smaato.net^
+||mopub.com^
+
+##### Exchanges / SSPs / bidders ###############################################
+||adnxs.com^
+||pubmatic.com^
+||rubiconproject.com^
+||openx.net^
+||criteo.com^
+||criteo.net^
+||spotxchange.com^
+||spotxcdn.com^
+||adsrvr.org^
+||3lift.com^
+||sharethrough.com^
+||teads.tv^
+
+##### Microsoft / MSN ad brokers ###############################################
+# These are the endpoints the Casual Games suite calls directly.
+||mobileads.msn.com^
+||srtb.msn.com^
+||rad.msn.com^
+||flex.msn.com^
+||ads.msn.com^
+||ads1.msn.com^
+||ads2.msn.com^
+||adbroker.mp.dse.microsoft.com^
+||msmonplat.trafficmanager.net^
+
+# --- Not expressible here --------------------------------------------------
+# ABP parsing has no wildcard form, so a broad casino word-match cannot live in
+# a subscribed list. If casino creatives still get through after gambling-only
+# has been active a few days, add this by hand under Domains -> Regex filter ->
+# Deny. Note that broad matching on "bet" is deliberately avoided -- it collides
+# with legitimate domains such as betterhelp.com.
+#
+#   (^|\.)(casino|slots|onlinecasino)[a-z0-9-]*\.(com|net)$
+#
+# Consent-management endpoints are likewise left out. Blocking them suppresses
+# the GDPR/CCPA interstitial some ad units gate on, but can stall page loads on
+# unrelated sites:
+#
+#   ||cookielaw.org^
+#   ||cookiepro.com^
+#   ||cookiebot.com^
