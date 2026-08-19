@@ -1,0 +1,44 @@
+# bonkey-safety :: allowlist.txt
+# Paste into Pi-hole under Domains -> Exact match, as Allow entries.
+# These override the broad third-party adlists in adlists.txt. Every entry here
+# is something that BREAKS if it gets blocked -- do not prune this file to
+# "tighten" filtering.
+
+##### Known Pi-hole breakage ###################################################
+# Xbox App / Game Pass installs fail with error 0x00000001 without this.
+settings-win.data.microsoft.com
+# Windows connectivity check -- blocking it causes a permanent "no internet"
+# indicator and can put apps into offline mode.
+www.msftncsi.com
+
+##### Shared with Widgets / MSN News / Edge new-tab ############################
+# Deliberately allowed even though ad guides list it. See ms-game-ads.txt.
+assets.msn.com
+
+##### Microsoft account sign-in ################################################
+login.live.com
+login.microsoftonline.com
+account.live.com
+
+##### Xbox Live core services ##################################################
+xbox.ipv6.microsoft.com
+device.auth.xboxlive.com
+user.auth.xboxlive.com
+title.auth.xboxlive.com
+xsts.auth.xboxlive.com
+title.mgt.xboxlive.com
+attestation.xboxlive.com
+xkms.xboxlive.com
+xflight.xboxlive.com
+dlassets-ssl.xboxlive.com
+assets1.xboxlive.com
+
+##### Store licensing, purchase and content delivery ###########################
+displaycatalog.mp.microsoft.com
+licensing.mp.microsoft.com
+purchase.mp.microsoft.com
+store-images.s-microsoft.com
+tlu.dl.delivery.mp.microsoft.com
+fe3.delivery.mp.microsoft.com
+do.dsp.mp.microsoft.com
+ctldl.windowsupdate.com

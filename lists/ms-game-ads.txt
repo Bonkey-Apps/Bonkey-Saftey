@@ -1,0 +1,100 @@
+# bonkey-safety :: ms-game-ads.txt
+# Ad endpoints used by Microsoft Casual Games (Solitaire Collection, Mahjong,
+# Minesweeper, Jigsaw, Sudoku, Ultimate Word Games) and the MSN ad broker they
+# share with Windows Widgets / MSN News.
+#
+# Format: hosts (0.0.0.0). Add to Pi-hole as an adlist by its raw URL:
+#   https://raw.githubusercontent.com/Bonkey-Apps/Bonkey-Saftey/main/lists/ms-game-ads.txt
+# Gambling/casino CREATIVES are handled by the StevenBlack gambling-only list
+# in adlists.txt -- this file blocks the delivery pipeline they arrive through.
+#
+# Do NOT add assets.msn.com here. It is shared with Windows Widgets, the Edge
+# new-tab page and MSN News, and some Casual Games builds hang on the loading
+# screen instead of skipping the ad. It is pinned in lists/allowlist.txt.
+
+##### Microsoft / MSN ad brokers ###############################################
+0.0.0.0 mobileads.msn.com
+0.0.0.0 srtb.msn.com
+0.0.0.0 ads.msn.com
+0.0.0.0 ads1.msn.com
+0.0.0.0 ads2.msn.com
+0.0.0.0 a.ads1.msn.com
+0.0.0.0 a.ads2.msn.com
+0.0.0.0 rad.msn.com
+0.0.0.0 flex.msn.com
+0.0.0.0 c.msn.com
+0.0.0.0 g.msn.com
+0.0.0.0 msmonplat.trafficmanager.net
+0.0.0.0 adbroker.mp.dse.microsoft.com
+0.0.0.0 ads.msads.net
+0.0.0.0 view.atdmt.com
+
+##### Taboola (primary video interstitial vendor for Casual Games) #############
+0.0.0.0 cdn.taboola.com
+0.0.0.0 trc.taboola.com
+0.0.0.0 api.taboola.com
+0.0.0.0 popup.taboola.com
+0.0.0.0 vidstat.taboola.com
+0.0.0.0 images.taboola.com
+0.0.0.0 cdn.taboolasyndication.com
+
+##### Outbrain ################################################################
+0.0.0.0 widgets.outbrain.com
+0.0.0.0 log.outbrain.com
+0.0.0.0 tr.outbrain.com
+0.0.0.0 mv.outbrain.com
+
+##### Vungle / AerServ (rewarded video) ########################################
+0.0.0.0 api.vungle.com
+0.0.0.0 ads.vungle.com
+0.0.0.0 cdn-a.vungle.com
+0.0.0.0 ads.aerserv.com
+
+##### AppNexus / Xandr ########################################################
+0.0.0.0 ib.adnxs.com
+0.0.0.0 cdn.adnxs.com
+0.0.0.0 secure.adnxs.com
+0.0.0.0 prebid.adnxs.com
+
+##### InMobi #################################################################
+0.0.0.0 ads.inmobi.com
+0.0.0.0 api.w.inmobi.com
+0.0.0.0 sdkm.w.inmobi.com
+
+##### SpotX / Magnite CTV #####################################################
+0.0.0.0 search.spotxchange.com
+0.0.0.0 sync.search.spotxchange.com
+0.0.0.0 cdn.spotxcdn.com
+
+##### OpenX ###################################################################
+0.0.0.0 us-u.openx.net
+0.0.0.0 eu-u.openx.net
+0.0.0.0 rtb.openx.net
+
+##### Criteo ##################################################################
+0.0.0.0 static.criteo.net
+0.0.0.0 sslwidget.criteo.com
+0.0.0.0 bidder.criteo.com
+0.0.0.0 gum.criteo.com
+
+##### Google ad exchange (video creatives + bidding) ###########################
+0.0.0.0 pagead2.googlesyndication.com
+0.0.0.0 tpc.googlesyndication.com
+0.0.0.0 securepubads.g.doubleclick.net
+0.0.0.0 bid.g.doubleclick.net
+0.0.0.0 googleads.g.doubleclick.net
+
+##### Mobile ad SDKs bundled into Store games ##################################
+0.0.0.0 adserver.unityads.unity3d.com
+0.0.0.0 auction.unityads.unity3d.com
+0.0.0.0 config.unityads.unity3d.com
+0.0.0.0 ads30.adcolony.com
+0.0.0.0 wd.adcolony.com
+0.0.0.0 soma.smaato.net
+0.0.0.0 ads.pubmatic.com
+0.0.0.0 hbopenbid.pubmatic.com
+0.0.0.0 fastlane.rubiconproject.com
+0.0.0.0 pixel.rubiconproject.com
+0.0.0.0 aax.amazon-adsystem.com
+0.0.0.0 c.amazon-adsystem.com
+0.0.0.0 ecs4.engageya.com
