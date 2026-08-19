@@ -1,4 +1,4 @@
-# bonkey-safety :: ms-game-ads.txt
+# bonkey-saftey :: ms-game-ads.txt
 # Ad endpoints used by Microsoft Casual Games (Solitaire Collection, Mahjong,
 # Minesweeper, Jigsaw, Sudoku, Ultimate Word Games) and the MSN ad broker they
 # share with Windows Widgets / MSN News.

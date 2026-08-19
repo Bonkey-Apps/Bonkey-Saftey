@@ -1,5 +1,8 @@
-# bonkey-safety :: allowlist.txt
-# Paste into Pi-hole under Domains -> Exact match, as Allow entries.
+# bonkey-saftey :: allowlist.txt
+# Subscribe to this file in Pi-hole v6 as an ALLOW list (Lists -> Add, type
+# "Allow list"):
+#   https://raw.githubusercontent.com/Bonkey-Apps/Bonkey-Saftey/main/lists/allowlist.txt
+# Stored as adlist.type = 1 and compiled into the antigravity table by pihole -g.
 # These override the broad third-party adlists in adlists.txt. Every entry here
 # is something that BREAKS if it gets blocked -- do not prune this file to
 # "tighten" filtering.
