@@ -1,0 +1,25 @@
+# bonkey-saftey :: adlists.txt
+# Remote adlists registered by install.ps1. One URL per line; # is a comment.
+# Order is not significant -- Pi-hole merges them all into gravity.
+#
+# Honest scoping: only the gambling list below does heavy lifting for the
+# Microsoft Casual Games problem. The other two are cheap, low-risk breadth for
+# the rest of the household's gaming, NOT the reason this pack works. The
+# Casual Games coverage comes from lists/ms-game-ads.txt and lists/regex-deny.txt
+# in this repo.
+
+# Gambling / casino / sportsbook domains -- ~145 KB, actively maintained.
+# This is the list that kills the casino creatives themselves. Load-bearing.
+https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/gambling-only/hosts
+
+# Overwolf, CurseForge and game-launcher ad + telemetry endpoints (EA, Ubisoft,
+# NVIDIA GFE). Small (~4 KB) and unrelated to Store games, but useful breadth if
+# anyone here runs those launchers. Note it also blocks edge.overwolf.com, which
+# its own author flags as possibly breaking the Overwolf app store.
+https://raw.githubusercontent.com/Jayconius/Pi-Hole-Gaming-Lists/main/Gaming-Ads-Blocklist.txt
+
+# Console system-menu ads (PS3/PS4/PS5, Xbox, Switch). ABP syntax, which Pi-hole
+# parses natively. Its own author notes it carried only ~11 relevant entries as
+# of April 2024 -- keep it only if a console shares this network. Zero effect on
+# Windows Store games.
+https://raw.githubusercontent.com/DandelionSprout/adfilt/master/GameConsoleAdblockList.txt
