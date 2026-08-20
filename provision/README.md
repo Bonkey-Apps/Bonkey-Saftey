@@ -57,9 +57,23 @@ silently bypassed** — blocking still tests perfectly if you query Pi-hole
 directly with `-Server`, because that is not the path applications use. That
 failure mode cost real debugging time here.
 
-The script's last step points this machine's physical adapters at
-`fd77:77:77::10` first, then `10.77.77.10`, which overrides the
-router-advertised entry.
+The script's last step points this machine at `fd77:77:77::10` first, then
+`10.77.77.10`, which overrides the router-advertised entry.
+
+It picks the adapter **carrying the default route**, not `-Physical`. On a
+Hyper-V host with an external switch those are different adapters: the physical
+NIC is only the underlay, and the host's IP stack lives on the `vEthernet`. An
+earlier version used `-Physical`, set resolvers on the wrong adapter, and left
+this machine with no working DNS. Before changing anything the step now proves
+Pi-hole answers on both addresses and skips with a warning if it does not.
+
+If host DNS ever does break, reset the adapter to DHCP from an elevated
+PowerShell:
+
+```powershell
+Set-DnsClientServerAddress -InterfaceAlias 'vEthernet (LAN Bridge)' -ResetServerAddresses
+Clear-DnsClientCache
+```
 
 ## Other devices are still bypassing
 

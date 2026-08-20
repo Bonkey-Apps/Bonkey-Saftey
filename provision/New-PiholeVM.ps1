@@ -70,6 +70,7 @@ if (-not $GuestUser -or $GuestUser -notmatch '^[a-z_]') {
 function Step($m) { Write-Host "`n==> $m" -ForegroundColor Cyan }
 function Info($m) { Write-Host "    $m"   -ForegroundColor DarkGray }
 function Ok  ($m) { Write-Host "    $m"   -ForegroundColor Green }
+function Warn($m) { Write-Host "    $m"   -ForegroundColor Yellow }
 
 # The exact list set running on the live box. type 0 = block, 1 = allow.
 $ADLISTS = @(
@@ -373,13 +374,49 @@ Guest 'sudo pihole -g' | Select-Object -Last 6 | ForEach-Object { Info $_ }
 # ----------------------------------------------------------------- host DNS --
 if (-not $SkipHostDns) {
     Step 'Pointing this machine at Pi-hole'
-    # Both families, IPv6 first. Windows prefers IPv6 resolvers, so leaving a
-    # router-advertised IPv6 DNS in place silently bypasses all filtering.
-    Get-NetAdapter -Physical | Where-Object { $_.Status -eq 'Up' } | ForEach-Object {
-        Set-DnsClientServerAddress -InterfaceIndex $_.ifIndex -ServerAddresses @($VMIPv6, $VMIPv4)
-        Info "$($_.Name) -> $VMIPv6, $VMIPv4"
+
+    # Pre-flight. Setting resolvers the host cannot reach leaves it with no DNS
+    # at all -- that has happened here. Prove both families answer first, and
+    # skip with a warning rather than break name resolution.
+    $reachable = $true
+    foreach ($srv in @($VMIPv6, $VMIPv4)) {
+        $probe = Resolve-DnsName 'example.com' -Server $srv -Type A -DnsOnly `
+                    -QuickTimeout -ErrorAction SilentlyContinue
+        if (-not $probe) {
+            Warn "Pi-hole did not answer on $srv -- leaving host DNS alone"
+            $reachable = $false
+        }
     }
-    Clear-DnsClientCache
+
+    if (-not $reachable) {
+        Warn 'host DNS unchanged. Fix the VM, then re-run with -Force, or set it by hand.'
+    } else {
+        # The adapter carrying the default route, NOT -Physical. On a Hyper-V
+        # host with an external switch the physical NIC is only the underlay:
+        # the host's IP stack lives on the vEthernet, so -Physical sets
+        # resolvers on an adapter that does not resolve anything.
+        $routed = Get-NetRoute -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue |
+                    Sort-Object RouteMetric |
+                    ForEach-Object { Get-NetAdapter -InterfaceIndex $_.ifIndex -ErrorAction SilentlyContinue } |
+                    Where-Object { $_.Status -eq 'Up' } |
+                    Sort-Object -Property ifIndex -Unique
+
+        if (-not $routed) {
+            Warn 'no default-route adapter found -- leaving host DNS alone'
+        } else {
+            # Both families, IPv6 first. Windows prefers IPv6 resolvers, so
+            # leaving a router-advertised IPv6 DNS in place silently bypasses
+            # all filtering.
+            $routed | ForEach-Object {
+                Set-DnsClientServerAddress -InterfaceIndex $_.ifIndex -ServerAddresses @($VMIPv6, $VMIPv4)
+                Info "$($_.Name) (ifIndex $($_.ifIndex)) -> $VMIPv6, $VMIPv4"
+            }
+            Clear-DnsClientCache
+
+            $undo = ($routed | ForEach-Object { $_.ifIndex }) -join ', '
+            Info "to undo: Set-DnsClientServerAddress -InterfaceIndex $undo -ResetServerAddresses"
+        }
+    }
 } else {
     Info 'skipped host DNS (-SkipHostDns)'
 }
