@@ -368,6 +368,30 @@ Remove-Item $sqlLocal -Force
 $allowCount = ($ADLISTS | Where-Object { $_.Type -eq 1 }).Count
 Ok "$($ADLISTS.Count) lists registered ($allowCount allow)"
 
+Step 'Scheduling hourly gravity updates'
+
+# Its own file. /etc/cron.d/pihole is under Pi-hole's source control and is
+# overwritten on every update -- its header says so. The weekly entry there is
+# left alone; one redundant run a week costs nothing.
+#
+# Guards matter on a box this small (the live VM has ~387 MB and no swap):
+#   flock -n    an hourly tick must never overlap a slow previous run or the
+#               Sunday weekly one. -n skips instead of queueing, and a skipped
+#               hour self-heals on the next tick.
+#   nice/ionice keep FTL answering DNS while gravity churns ~3.9M domains.
+#   minute 17   off the hour, to be polite to raw.githubusercontent.com.
+$cronLine = '17 *   * * *   pihole   PATH="$PATH:/usr/sbin:/usr/local/bin/" ' +
+            'flock -n /run/lock/pihole-gravity.lock nice -n 10 ionice -c3 ' +
+            'pihole updateGravity >/var/log/pihole/gravity-hourly.log 2>&1 ' +
+            '|| cat /var/log/pihole/gravity-hourly.log'
+
+$cronFile = '/etc/cron.d/pihole-gravity-hourly'
+Guest "printf '%s
+' '# bonkey-saftey: rebuild gravity every hour.' '$cronLine' | sudo tee $cronFile >/dev/null" | Out-Null
+Guest "sudo chown root:root $cronFile && sudo chmod 644 $cronFile" | Out-Null
+Guest 'sudo systemctl reload-or-restart cron' | Out-Null
+Ok 'hourly gravity job installed (:17 past the hour)'
+
 Step 'Building gravity (downloads several million domains; slow)'
 Guest 'sudo pihole -g' | Select-Object -Last 6 | ForEach-Object { Info $_ }
 
