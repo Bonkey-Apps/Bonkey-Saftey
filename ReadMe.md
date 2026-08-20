@@ -5,8 +5,8 @@ Microsoft's built-in games — Solitaire Collection, Mahjong, Minesweeper, Jigsa
 Sudoku, Ultimate Word Games — with particular attention to the gambling and
 casino creatives those games serve to a logged-in kid account.
 
-Plain text lists, no scripts. Targets the Docker Pi-hole v6 described in
-`PIHOLE_DEPLOYMENT_PLAN.md`.
+Plain text lists installed by URL subscription. They run on the Pi-hole v6 VM
+at `10.77.77.10` — see `provision/` to rebuild that server from scratch.
 
 ## What is in here
 
@@ -15,6 +15,7 @@ Plain text lists, no scripts. Targets the Docker Pi-hole v6 described in
 | `adlists.txt` | Third-party adlist URLs to register with Pi-hole. |
 | `lists/ms-game-ads.txt` | Our own hosts-format list — the MSN ad broker and the ad networks the Casual Games suite pulls video interstitials from. |
 | `lists/ad-networks.txt` | ABP-syntax block list covering those same ad networks at whole-domain level, so new vendor subdomains are caught without edits. |
+| `provision/` | Script that rebuilds the Pi-hole VM these lists run on. |
 | `lists/allowlist.txt` | Exact allows that override the broad third-party lists. **Do not prune this to tighten filtering** — every entry breaks something if blocked. |
 
 ## Install
@@ -48,7 +49,7 @@ override the broad third-party lists.
 ### 3. Rebuild gravity
 
 ```bash
-docker exec pihole pihole -g
+ssh <user>@10.77.77.10 'sudo pihole -g'
 ```
 
 Nothing takes effect until this runs.
@@ -57,8 +58,8 @@ Nothing takes effect until this runs.
 
 `ad-networks.txt` uses ABP syntax (`||example.com^`, which matches the domain
 and all its subdomains). That needs Pi-hole Core ≥ 5.16 / FTL ≥ 5.22;
-subscribed allow lists need v6. The v6 deployment in
-`PIHOLE_DEPLOYMENT_PLAN.md` satisfies both. On anything older, both files are
+subscribed allow lists need v6. The VM runs
+Core v6.4.3 / FTL v6.7 and satisfies both. On anything older, both files are
 still readable by hand but will not install as written.
 
 ## Two layers, on purpose
@@ -98,7 +99,7 @@ failures, and both are easy to "fix" back into breakage:
 After gravity rebuilds, launch Solitaire and watch the query log:
 
 ```bash
-docker exec pihole pihole -t
+ssh <user>@10.77.77.10 'sudo pihole -t'
 ```
 
 You should see `mobileads.msn.com` and a Taboola host come back blocked, and the
@@ -115,3 +116,16 @@ If a game still shows ads, watch `pihole -t` while it loads and find the
 unfamiliar domain that fires immediately before the ad. Add a single host to
 `lists/ms-game-ads.txt`, or the whole vendor domain to `lists/ad-networks.txt`
 as `||vendor.com^`. Push, then rerun `pihole -g`.
+
+## If nothing seems to be blocked
+
+Check the resolver path before touching the lists. Query **without** `-Server`,
+because that is the path applications actually use:
+
+```powershell
+Resolve-DnsName cdn.taboola.com | Select-Object Name, IPAddress
+```
+
+A real IP here means Pi-hole is being bypassed, not that the lists are wrong.
+Windows prefers IPv6 resolvers, so a router-advertised IPv6 DNS server silently
+wins over an IPv4-only Pi-hole. `provision/README.md` covers the fix.
