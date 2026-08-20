@@ -12,6 +12,20 @@
 # new-tab page and MSN News, and some Casual Games builds hang on the loading
 # screen instead of skipping the ad. It is pinned in lists/allowlist.txt.
 
+##### Microsoft Casual Games first-party ad host ###############################
+# Found in the wild 2026-08-19. Microsoft-owned (CSC Corporate Domains, Azure
+# DNS), served by the games themselves, and it CNAMEs to adsdk.trafficmanager.net
+# -- "adsdk" being exactly what it sounds like.
+#
+# Block this HOST only. Do NOT block microsoftcasualgames.com as a domain:
+# www.microsoftcasualgames.com resolves through a different CNAME
+# (mcgweb-*.azurefd.net) and is the games themselves. Whole-domain blocking
+# breaks Solitaire rather than de-adding it.
+0.0.0.0 domainreferrer3.microsoftcasualgames.com
+# The CNAME target. Pi-hole does deep CNAME inspection, so blocking this also
+# catches any future host that points at the same ad SDK backend.
+0.0.0.0 adsdk.trafficmanager.net
+
 ##### Microsoft / MSN ad brokers ###############################################
 0.0.0.0 mobileads.msn.com
 0.0.0.0 srtb.msn.com

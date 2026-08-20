@@ -32,6 +32,17 @@
 ||smaato.net^
 ||mopub.com^
 
+##### Ad verification / viewability / fraud measurement ########################
+# Pure ad-tech -- these exist only to measure and verify advertising, so
+# whole-domain blocking is safe. Added after tpsc-uw1.doubleverify.com was seen
+# getting through: the apex and the common subdomains were already blocked by
+# exact-host entries, but the regional shard was not. This is the case ABP
+# syntax exists for.
+||doubleverify.com^
+||moatads.com^
+||adsafeprotected.com^
+||adtrafficquality.google^
+
 ##### Exchanges / SSPs / bidders ###############################################
 ||adnxs.com^
 ||pubmatic.com^
