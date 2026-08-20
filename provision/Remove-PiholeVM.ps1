@@ -63,6 +63,7 @@ param(
     [string]   $SwitchName  = 'Pihole Internal',
     [string]   $WorkDir     = 'C:\pihole-vm',
     [string]   $VMIPv4      = '10.77.77.10',
+    [string]   $VMIPv6      = 'fd77:77:77::10',
     [string[]] $DnsServers,
     [switch]   $DnsOnly,
     [switch]   $KeepImage,
@@ -82,22 +83,41 @@ function Warn($m) { Write-Host "    $m"   -ForegroundColor Yellow }
 # cleanup and can fail without leaving name resolution broken.
 Step 'Restoring this machine''s DNS'
 
+# Target adapters by what they currently point at, not by what New-PiholeVM.ps1
+# selected. Its filter was 'Get-NetAdapter -Physical | Status -eq Up', and on a
+# machine where the internet-facing adapter is a Hyper-V vEthernet over a
+# network bridge, the interface that ends up holding the Pi-hole addresses is
+# not the one that filter returns. Matching on the addresses themselves finds
+# the adapter wherever it landed, and touches nothing that was never changed.
+$piholeDns = @($VMIPv4, $VMIPv6)
+
+$targets = Get-DnsClientServerAddress |
+    Where-Object { $_.ServerAddresses } |
+    ForEach-Object {
+        # Link-local and site-local entries carry a %scope suffix; strip it before
+        # comparing.
+        $addrs = $_.ServerAddresses | ForEach-Object { ($_ -split '%')[0] }
+        if ($addrs | Where-Object { $piholeDns -contains $_ }) { $_ }
+    } |
+    Group-Object InterfaceIndex
+
 $touched = 0
-foreach ($nic in Get-NetAdapter -Physical | Where-Object { $_.Status -eq 'Up' }) {
-    $current = (Get-DnsClientServerAddress -InterfaceIndex $nic.ifIndex |
-                  ForEach-Object { $_.ServerAddresses }) -join ', '
-    Info "$($nic.Name) currently: $(if ($current) { $current } else { '(none)' })"
+foreach ($group in $targets) {
+    $ifIndex = [int] $group.Name
+    $alias   = $group.Group[0].InterfaceAlias
+    $current = ($group.Group | ForEach-Object { $_.ServerAddresses }) -join ', '
+    Info "$alias currently: $current"
 
     if ($DnsServers) {
-        if ($PSCmdlet.ShouldProcess($nic.Name, "Set DNS to $($DnsServers -join ', ')")) {
-            Set-DnsClientServerAddress -InterfaceIndex $nic.ifIndex -ServerAddresses $DnsServers
-            Ok "$($nic.Name) -> $($DnsServers -join ', ')"
+        if ($PSCmdlet.ShouldProcess($alias, "Set DNS to $($DnsServers -join ', ')")) {
+            Set-DnsClientServerAddress -InterfaceIndex $ifIndex -ServerAddresses $DnsServers
+            Ok "$alias -> $($DnsServers -join ', ')"
             $touched++
         }
     } else {
-        if ($PSCmdlet.ShouldProcess($nic.Name, 'Reset DNS to DHCP')) {
-            Set-DnsClientServerAddress -InterfaceIndex $nic.ifIndex -ResetServerAddresses
-            Ok "$($nic.Name) -> DHCP"
+        if ($PSCmdlet.ShouldProcess($alias, 'Reset DNS to DHCP')) {
+            Set-DnsClientServerAddress -InterfaceIndex $ifIndex -ResetServerAddresses
+            Ok "$alias -> DHCP"
             $touched++
         }
     }
@@ -109,7 +129,10 @@ if ($touched) {
         Ok 'resolver cache flushed'
     }
 } else {
-    Warn 'No physical adapter was Up -- nothing to restore. Check Wi-Fi/Ethernet is connected.'
+    Warn "No adapter is pointing at $VMIPv4 or $VMIPv6 -- DNS was already restored,"
+    Warn 'or was never changed on this machine. Nothing to do.'
+    Info 'The fec0:0:0:ffff::1/2/3 entries Windows shows on idle adapters are its'
+    Info 'own built-in defaults, not something this repo set. They are ignored.'
 }
 
 if ($DnsOnly) {

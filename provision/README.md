@@ -129,6 +129,32 @@ The switch is kept, with a warning, if another VM is still attached to it.
 overwrote it. The original value is not recorded anywhere, so the default is a
 reset to DHCP; pass the old addresses explicitly if DHCP is not what you want.
 
+### Reading `ipconfig` afterwards
+
+Two things are easy to misread when checking which adapter was changed.
+
+**`fec0:0:0:ffff::1`, `::2` and `::3` are not from this repo.** They are
+Windows' own built-in site-local DNS defaults, shown on every adapter that has
+no DNS configured — note the `%1` scope, which is loopback. They appear on idle
+and disconnected adapters as a matter of course and are inert. Neither script
+here sets or clears them.
+
+**The change lands on whichever adapter carries the traffic, which may not be a
+physical one.** Where Wi-Fi is bridged and Hyper-V has an external switch over
+it, the interface holding `fd77:77:77::10` / `10.77.77.10` is
+`vEthernet (LAN Bridge)` rather than `Wi-Fi`. So look for the Pi-hole addresses
+themselves, not for a particular adapter:
+
+```powershell
+Get-DnsClientServerAddress |
+  Where-Object { $_.ServerAddresses -match '10\.77\.77\.10|fd77:77:77::10' } |
+  Select-Object InterfaceAlias, AddressFamily, ServerAddresses
+```
+
+`Remove-PiholeVM.ps1` selects the same way — by address, not by adapter class —
+so it finds the interface wherever provisioning left it and leaves untouched
+anything that was never changed.
+
 ### Why "everything broke" is usually the DNS step
 
 The last step of `New-PiholeVM.ps1` points this machine's adapters at the VM.
