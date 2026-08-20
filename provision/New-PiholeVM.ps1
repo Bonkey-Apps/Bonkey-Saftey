@@ -389,7 +389,8 @@ if (-not $SkipHostDns) {
     }
 
     if (-not $reachable) {
-        Warn 'host DNS unchanged. Fix the VM, then re-run with -Force, or set it by hand.'
+        Warn 'host DNS unchanged. Boot/repair the VM, then set host DNS by hand.'
+        Warn "  Set-DnsClientServerAddress -InterfaceIndex <n> -ServerAddresses @('$VMIPv6','$VMIPv4')"
     } else {
         # The adapter carrying the default route, NOT -Physical. On a Hyper-V
         # host with an external switch the physical NIC is only the underlay:
