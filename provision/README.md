@@ -36,6 +36,36 @@ default Hyper-V UEFI CA. It will not boot otherwise.
 | `-Force` | off | Rebuild an existing VM. **Destroys its disk.** |
 | `-MemoryStartupBytes` | `1GB` | The live VM runs smaller, but `pihole -g` is memory-hungry at ~3.9M domains. |
 
+## Gravity refreshes hourly
+
+`/etc/cron.d/pihole-gravity-hourly` runs `pihole updateGravity` at **:17 past
+every hour**, so a list edit pushed to this repo is live within the hour without
+anyone touching the box.
+
+It is a separate file on purpose: `/etc/cron.d/pihole` is under Pi-hole's own
+source control and is overwritten on every update. The weekly entry there stays
+put — one redundant run a week costs nothing.
+
+The line is wrapped in `flock -n` and `nice`/`ionice`. This VM has ~387 MB and
+no swap, so an hourly tick overlapping a slow previous run (or the Sunday
+weekly) is the realistic way to OOM it. `-n` skips rather than queues, and a
+skipped hour self-heals on the next tick.
+
+Measured here: a full rebuild with every list unchanged upstream takes **11
+seconds** and does not move memory — Pi-hole skips re-downloading unchanged
+lists and only recompiles the tree. Hourly is cheap.
+
+Output goes to `/var/log/pihole/gravity-hourly.log`, truncated each run so it
+never grows.
+
+```bash
+# force a refresh now
+sudo -u pihole pihole updateGravity
+
+# did the last scheduled run work?
+grep -E 'Done|gravity domains' /var/log/pihole/gravity-hourly.log
+```
+
 ## Prerequisites
 
 - Hyper-V already installed and enabled — the script checks but will not install it
@@ -57,9 +87,23 @@ silently bypassed** — blocking still tests perfectly if you query Pi-hole
 directly with `-Server`, because that is not the path applications use. That
 failure mode cost real debugging time here.
 
-The script's last step points this machine's physical adapters at
-`fd77:77:77::10` first, then `10.77.77.10`, which overrides the
-router-advertised entry.
+The script's last step points this machine at `fd77:77:77::10` first, then
+`10.77.77.10`, which overrides the router-advertised entry.
+
+It picks the adapter **carrying the default route**, not `-Physical`. On a
+Hyper-V host with an external switch those are different adapters: the physical
+NIC is only the underlay, and the host's IP stack lives on the `vEthernet`. An
+earlier version used `-Physical`, set resolvers on the wrong adapter, and left
+this machine with no working DNS. Before changing anything the step now proves
+Pi-hole answers on both addresses and skips with a warning if it does not.
+
+If host DNS ever does break, reset the adapter to DHCP from an elevated
+PowerShell:
+
+```powershell
+Set-DnsClientServerAddress -InterfaceAlias 'vEthernet (LAN Bridge)' -ResetServerAddresses
+Clear-DnsClientCache
+```
 
 ## Other devices are still bypassing
 
