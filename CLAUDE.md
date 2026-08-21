@@ -34,12 +34,33 @@ dig @10.77.77.10 +short <domain> A             # 0.0.0.0 => blocked
 Never change DNS on the Windows host's `vEthernet (LAN Bridge)` adapter from a
 script. See rule 9.
 
+## Tooling lives in this repo
+
+`.claude/` carries everything an agent needs, versioned alongside the lists it
+governs, so a change to the method is reviewed the same way a change to a list
+is:
+
+| Path | What |
+|---|---|
+| `.claude/rules/pihole-lists.md` | the invariants — read before editing `lists/` |
+| `.claude/skills/pihole-ad-audit/` | find what is getting through, and ship it |
+| `.claude/skills/pihole-add-list/` | subscribe/unsubscribe a list and verify it took |
+| `.claude/agents/pihole-auditor.md` | read-only investigator |
+
 ## Auditing what is getting through
 
 Use the **`pihole-ad-audit`** skill for the full method — log sweep, live
 confirmation, classification, PR, and the BS change request. The read-only
 **`pihole-auditor`** agent does the investigation half without spending context
 on hundreds of domains of log output.
+
+## Deploying a list
+
+Use the **`pihole-add-list`** skill to subscribe, unsubscribe or swap a list.
+Merging a PR here deploys nothing (rule 2), there is no `pihole adlist` CLI —
+subscriptions are rows in `gravity.db` — and SSH quoting mangles inline SQL, so
+the skill feeds it from a file. It also covers reading gravity's parsed counts
+as the acceptance check, and the `domainlist` table for local denies.
 
 Audits are recorded under `audits/YYYY-MM-DD-pihole-log-audit.md`, and each one
 states its coverage window, the confirmed leaks, and the domains deliberately
