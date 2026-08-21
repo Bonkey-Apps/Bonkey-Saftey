@@ -132,6 +132,24 @@
 ||tq-tungsten.com^
 ||adsqtungsten.a9.amazon.dev^
 
+##### Decided under BS-2 -- Pi-hole log audit 2026-08-21 ######################
+# These three were flagged rather than auto-blocked because each needed a human
+# call on scope, not because the vendor was in doubt. Decision recorded in BS-2.
+
+# Shoppable-ad / cart-injection tech. Nothing here but advertising, so the whole
+# domain goes.
+||click2cart.com^
+# Session AI / ZineOne real-time behavioural targeting. Whole-domain: the vendor
+# does behavioural targeting and nothing a site needs to function.
+||zineone.com^
+# HOST ONLY -- deliberately not ||octane.co^.
+# The apex could not be attributed from DNS: "octane.co" is either Octane AI
+# (Shopify marketing widgets) or Octane Lending (point-of-sale financing). If it
+# is the latter, an apex block breaks checkout financing on unrelated merchant
+# sites. widget. is the marketing surface either way, so block just that until
+# someone identifies the vendor. See BS-2.
+||widget.octane.co^
+
 # --- Not expressible here --------------------------------------------------
 # ABP parsing has no wildcard form, so a broad casino word-match cannot live in
 # a subscribed list. If casino creatives still get through after gambling-only

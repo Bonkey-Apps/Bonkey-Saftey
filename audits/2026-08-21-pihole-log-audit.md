@@ -111,3 +111,49 @@ That list also allows `internal.pinnacle.ad.ea.com` and
 `tracking.epicgames.com`. Not changed here — it is a Pi-hole subscription
 decision, not a file in this repo — but if Unity ads matter more than the
 Overwolf/launcher breadth that list buys, unsubscribing it is the fix.
+
+---
+
+# Addendum — cycle 2 (17:44 UTC), and the BS-2 decision
+
+The 2-hourly routine audited 2026-08-20 18:00 → 2026-08-21 17:00 UTC (183
+queries, 109 domains). **Zero solid findings**, so nothing was auto-merged.
+
+Four domains met the gap rule technically but were held for a human call and
+filed as BS-2. Three have now been decided and are blocked:
+
+| Domain | Scope | Why this scope |
+| --- | --- | --- |
+| `click2cart.com` | whole domain | shoppable-ad / cart-injection tech, nothing else on it |
+| `zineone.com` | whole domain | Session AI / ZineOne behavioural targeting only |
+| `widget.octane.co` | **host only** | the apex could not be attributed — `octane.co` is either Octane AI (marketing widgets) or Octane Lending (point-of-sale financing). An apex block on the latter breaks checkout financing on unrelated merchant sites |
+
+Left unblocked, deliberately:
+
+- `static.ads.brave.com` — Brave's own opt-in ad system. A browser setting, not a
+  third-party leak; blocking degrades Brave Rewards.
+- `fksnk.com` — unidentified. Real, registered, AWS-hosted, but answers NOERROR
+  with no A record, so it never met the gap rule. Watch, do not block.
+
+## Health checks — all passed
+
+Roblox blocks correctly across all 11 hosts (`blocked-games.txt` working; the
+one answered query predates list application by three minutes). The `nycx` shard
+hosts and the `amazon-adsystem.com` deep hosts are blocked **at their apexes**,
+confirming the ABP entries catch new shards rather than only the observed ones.
+No allow entry is overriding a block. All 14 adlist subscriptions healthy.
+
+## The finding that outranks all of the above
+
+**No real client has queried Pi-hole since 2026-08-20 14:16:39.** Every query in
+this window came from `127.0.0.1` — the box probing itself during the previous
+audit. The IPv4 forwarder (`10.77.77.1`) and the IPv6 client
+(`fd77:77:77::1`) went silent **37 seconds apart**, which is one router-side
+event rather than two coincidences.
+
+Logging is healthy and the resolver answers correctly, so this is "clients
+stopped asking", not "logging broke" — filtering is bypassed at the network
+layer. Until it is fixed, every entry added above is verified at the resolver
+but affects no real traffic. The fix is a router/RA change plus the known
+`vEthernet (LAN Bridge)` resolver issue: manual, elevated, and out of scope for
+the routine.
