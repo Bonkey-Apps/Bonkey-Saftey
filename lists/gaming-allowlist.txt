@@ -1,0 +1,372 @@
+# bonkey-saftey :: gaming-allowlist.txt
+# Subscribe to this file in Pi-hole v6 as an ALLOW list (Lists -> Add, type
+# "Allow list"):
+#   https://raw.githubusercontent.com/Bonkey-Apps/Bonkey-Saftey/main/lists/gaming-allowlist.txt
+#
+# This REPLACES the third-party subscription:
+#   https://raw.githubusercontent.com/Jayconius/Pi-Hole-Gaming-Lists/main/Gaming-Whitelist.txt
+# Unsubscribe that one when this is added, or the entries removed below come
+# straight back -- both lists compile into the same antigravity table and an
+# allow entry from ANY subscribed allow list wins.
+#
+# Why we forked it: allow lists beat block lists unconditionally in Pi-hole.
+# The upstream list was silently un-blocking ad and telemetry hosts that our own
+# lists, StevenBlack and oisd all block. Verified 2026-08-21:
+# config.unityads.unity3d.com is present in gravity from FOUR separate block
+# lists (StevenBlack, oisd, the Jayconius gaming adlist, and our own
+# ms-game-ads.txt) and still resolved, because one allow entry outranked all
+# four. Adding more block entries cannot fix that -- removing the allow can.
+#
+# Everything the upstream list says about game services is kept verbatim,
+# including its per-entry comments. Only advertising and telemetry hosts were
+# removed. See the tail of this file for the full removal list.
+#
+# Upstream snapshot: "MASTER GAMING WHITELIST - March 2026", forked 2026-08-21.
+# Re-syncing means re-applying the same removals -- diff against upstream and
+# re-check the list at the bottom before pulling changes in.
+#
+# Note: a handful of entries here also appear in lists/allowlist.txt. That is
+# deliberate -- each file stays self-contained and readable on its own, and
+# duplicate allow entries are a no-op.
+
+# --- 2K LAUNCHER ---
+2k.com                         # 2K account login and launcher authentication.
+accounts.2k.com                # Account management for 2K games.
+cdn.2k.com                     # CDN for 2K launcher assets and game patches.
+launcher.2k.com                # 2K Launcher core service endpoint.
+shift.2k.com                   # SHiFT rewards service (Borderlands keys, cosmetics).
+www.2k.com                     # Web storefront and account portal.
+
+# --- ACTIVISION / CALL OF DUTY ---
+activision.com                 # Main Activision account portal and login.
+api.activision.com             # Activision account API for stats and friend data.
+arkoselabs.com                 # REQUIRED: Login verification and CAPTCHA for main site.
+callofduty.com                 # CoD website and companion app backend.
+client.callofduty.com          # In-game client connectivity and matchmaking.
+cod-game-service.prod.activision.com # Core CoD game service - stats, lobbies, ranks.
+cod-notification.prod.activision.com # Challenge and seasonal event notifications.
+codservices.net                # CDN for CoD game assets and patch delivery.
+www.activision.com             # Main web portal front-end.
+www.callofduty.com             # Primary web interface for Call of Duty.
+
+# --- BETHESDA / id SOFTWARE ---
+api.bethesda.net               # Backend API for account services and mod sync.
+bethesda.net                   # Bethesda account login, cloud saves, and mod library.
+cdnp.bethesda.net              # CDN for game mods, patches, and Bethesda.net assets.
+mods.bethesda.net              # In-game mod browser for Fallout 4, Skyrim, Starfield.
+slayerclub.bethesda.net        # DOOM Slayer Club - achievement challenges and rewards.
+www.bethesda.net               # Web portal for account and Mods.bethesda.net.
+
+# --- BLIZZARD (Battle.net) ---
+battle.net                     # Main launcher login and store.
+blizzard.com                   # Account management and website features.
+blzstatic.com                  # High-speed delivery for store images and icons.
+cdn.blizzard.com               # CDN for game patches, launcher assets, and shop images.
+eu.battle.net                  # EU regional login endpoint for game authentication.
+oauth.battle.net               # Secure login verification for launcher/games.
+us.battle.net                  # US regional login endpoint for game authentication.
+www.battle.net                 # Web storefront for Battle.net titles.
+www.blizzard.com               # Main Blizzard corporate and news site.
+
+# --- DISCORD ---
+cdn.discordapp.com             # Required for loading chat images, icons, and files.
+discord.com                    # Main site and API access.
+gateway.discord.gg             # Primary connection for Discord client to stay online.
+www.discord.com                # Web-based Discord client and marketing site.
+
+# --- EA APP (Electronic Arts) ---
+accounts.ea.com                # EA account portal - login and profile management.
+ea.com                         # Main website and authentication server.
+eaassets-a.akamaihd.net        # Akamai CDN - in-app store art and game thumbnails.
+eacomms.ea.com                 # EA social systems and in-app messaging.
+gateway.ea.com                 # Core API gateway for EA App user interface modules.
+origin-a.akamaihd.net          # Akamai CDN - EA App installer and game patch delivery.
+origin.com                     # Legacy store domain used for redirects and legacy auth.
+www.ea.com                     # Main web portal and storefront front-end.
+www.origin.com                 # Primary store front-end for EA titles.
+
+# --- EPIC GAMES ---
+account-public-service-prod03.ol.epicgames.com    # Account service (login handshake).
+accounts.epicgames.com         # Account login and profile management.
+accounts.launcher-website-prod07.ol.epicgames.com # Account page within launcher.
+api.epicgames.dev              # ESSENTIAL: Matchmaking and achievement sync for EOS titles.
+catalog-public-service-prod06.ol.epicgames.com    # Store catalog for browsing and purchasing.
+cdn1.unrealengine.com          # CDN for launcher assets and game content (1 of 2).
+cdn2.unrealengine.com          # CDN for launcher assets and game content (2 of 2).
+entitlement-public-service-prod08.ol.epicgames.com # Verifies game ownership.
+epic-games-api-oss-production.s3.amazonaws.com # S3 bucket for library and game art.
+epicgames.com                  # Main store and launcher authentication.
+epicgames.dev                  # ESSENTIAL: Base domain for Epic Online Services (EOS).
+friends-public-service-prod06.ol.epicgames.com    # Syncs friend requests/chats.
+friends.ol.epicgames.com        # Core Friends list service and "Social Overlay."
+launcher-public-service-prod06.ol.epicgames.com   # Core launcher service endpoint.
+launcher-website-prod07.ol.epicgames.com          # Launcher website backend.
+launcherwaitingroom-public-service-prod06.ol.epicgames.com # Launcher queue/lobby.
+orderprocessor-public-service-ecomprod01.ol.epicgames.com # Purchase/transaction processing.
+static-assets-prod.epicgames.com # Primary source for launcher UI and game thumbnails.
+www.epicgames.com              # Web portal and store front-end.
+
+# --- GOG GALAXY (CD Projekt) ---
+api.gog.com                    # REQUIRED: Core API for launcher and login functionality.
+cdn.gog.com                    # Main CDN for game installers and large assets.
+cfg.gog.com                    # Client configuration service - prevents blank library.
+galaxy-client.gog.com          # Core launcher synchronization and cloud saves.
+gameplay.gog.com               # Achievements API backend.
+gog-statics.com                # ESSENTIAL: Primary host for web assets and promotional banners.
+gog.com                        # Storefront and game library access.
+images.gog-statics.com         # Modern CDN for game art and library thumbnails.
+images.gog.com                 # Secondary/Legacy CDN for game assets and store images.
+login.gog.com                  # Dedicated authentication service for signing in.
+menu.gog.com                   # REQUIRED: Loads launcher navigation and menu items.
+notifications.gog.com          # In-client achievement pop notifications and activity.
+remote.gog.com                 # Cloud save sync - receives and pushes save files.
+sections.gog.com               # REQUIRED: Loads store and library sections within the client.
+static.gog.com                 # Core site CSS, JavaScript, and layout assets.
+users.gog.com                  # REQUIRED: User profiles, friends list, and social data.
+www.gog.com                    # Main website front-end.
+
+# --- MINECRAFT ---
+api.minecraftservices.com      # Bedrock auth, entitlement checks and Marketplace.
+fp.msedge.net                  # Required for Realms world upload functionality.
+libraries.minecraft.net        # Code libraries and engine components.
+me-identity.minecraft-services.net # Modern Bedrock identity handshake.
+minecraft.net                  # Skin servers and Java Edition authentication.
+minecraftprod.rtep.msgamestudios.com # Realms Plus world uploads to MS servers.
+minecraftservices.com          # Root domain for Bedrock services backend.
+mojang.com                     # ESSENTIAL: Legacy domain required for login assets.
+multiplayer.minecraft.net      # Core connectivity for featured servers.
+pc.realms.minecraft.net        # Connectivity for Minecraft Realms (Java).
+pocket.realms.minecraft.net    # Connectivity for Minecraft Realms (Bedrock).
+resources.download.minecraft.net # Essential game resources/assets.
+textures.minecraft.net         # Loading skins and textures.
+www.minecraft.net              # Primary web portal for Minecraft and skin management.
+www.mojang.com                 # Legacy web access for Mojang accounts.
+
+# --- NINTENDO ---
+aauth-lp1.ndas.srv.nintendo.net # Application authentication - per-game online access.
+accounts.nintendo.com          # Nintendo Account portal - login and profile.
+api.accounts.nintendo.com      # Account API - add friends, profile data, avatars.
+app-a05.lp1.npns.srv.nintendo.net # NPNS app node - real-time alert delivery.
+app.lp1.five.nintendo.net      # Parental Controls companion app backend.
+atum.hac.lp1.d4c.nintendo.net  # Game download CDN - primary title delivery.
+bcat-data-lp1.cdn.nintendo.net # BCAT content payload delivery.
+bcat-list-lp1.cdn.nintendo.net # BCAT content topic list.
+bcat-topics-lp1.cdn.nintendo.net # BCAT topic subscription list.
+beach.hac.lp1.eshop.nintendo.net # eShop product listing and search.
+broker.lp1.npns.srv.nintendo.net # NPNS notification broker.
+bugyo.hac.lp1.eshop.nintendo.net # eShop primary storefront service.
+capi.lp1.op2.nintendo.net      # Online play core API - matchmaking and sessions.
+cdn.accounts.nintendo.com      # CDN for account assets (profile images).
+consumer.lp1.npns.srv.nintendo.net # NPNS consumer - receives pushed notifications.
+ctest.cdn.nintendo.net         # Internet connectivity test (Switch NAT check).
+dauth-lp1.ndas.srv.nintendo.net # Device authentication hardware handshake.
+dragons.hac.lp1.dragons.nintendo.net # NSO membership verification.
+e0d67c509fb203858ebcb2fe3f88c2aa.baas.nintendo.com # BAAS online status.
+ecs-lp1.hac.shop.nintendo.net  # eShop commerce server.
+fw-api.lp1.nso.nintendo.net    # NSO firmware API membership features.
+lp1.npns.srv.nintendo.net      # NPNS root endpoint for notifications.
+lp1.nso.nintendo.net           # Nintendo Switch Online missions and rewards.
+lp1.sprofile.srv.nintendo.net  # Switch user profile and avatar sync.
+nintendo-europe.com            # ESSENTIAL: Required for UK/EU Nintendo site.
+nintendo.com                   # Main Nintendo website, login, and support.
+nintendo.net                   # ESSENTIAL: Assets and metadata for the web eShop.
+nintendowifi.net               # Legacy WFC support for Wii/DS online titles.
+receive-lp1.er.srv.nintendo.net # Error reporting endpoint.
+sun.hac.lp1.d4c.nintendo.net   # System update metadata server.
+tagaya.hac.lp1.eshop.nintendo.net # eShop title version list and update metadata.
+veer.hac.lp1.d4c.nintendo.net  # Secondary game content delivery node.
+www.nintendo-europe.com        # EU regional web storefront.
+www.nintendo.com               # Primary US web portal for Nintendo.
+
+# --- PARADOX LAUNCHER ---
+accounts.paradoxplaza.com      # Account authentication service.
+api.paradoxplaza.com           # Launcher backend API (mods, DLC, cloud saves).
+cdn.paradoxplaza.com           # CDN for launcher assets and news.
+mods.paradoxplaza.com          # Paradox mod platform.
+paradoxplaza.com               # Paradox account portal, store, and launcher login.
+pdxmm.akamaized.net            # Akamai-hosted Paradox Mods CDN.
+www.paradoxplaza.com           # Web storefront and community forums.
+
+# --- RIOT GAMES ---
+auth.riotgames.com             # OAuth authentication gateway for all Riot titles.
+ddragon.leagueoflegends.com    # Data Dragon champion icons and splash art.
+entitlements.auth.riotgames.com # Verifies game and cosmetic ownership.
+la.riotgames.com               # Latin America regional server endpoint.
+lol.secure.dyn.riotcdn.net     # LoL secure dynamic asset delivery.
+playerpreferences.riotgames.com # Stores and syncs in-game settings.
+pvp.net                        # Legacy League backend (active for LAN).
+rgpub.io                       # Riot internal publish for live match data.
+riotcdn.com                    # Secondary Riot CDN (legacy/overflow).
+riotcdn.net                    # Primary Riot CDN.
+riotgames.com                  # Main Riot account portal and login.
+skins.riotgames.com            # Cosmetic/skin data delivery.
+store.riotgames.com            # Riot Store for VP/RP purchases.
+www.riotgames.com              # Web portal and game library site.
+
+# --- ROBLOX --- (intentionally empty)
+# Roblox is BLOCKED on this network, not allowed. Its 31 upstream entries
+# were removed from this file and the domains added to lists/blocked-games.txt.
+# Re-adding any roblox.com / rbxcdn.com / rbxinfra.net host here would defeat
+# that block outright -- allow lists outrank block lists.
+
+# --- ROCKSTAR GAMES ---
+patches.rockstargames.com      # Required for launcher verification and updates.
+prod.cloud.rockstargames.com   # Cloud save endpoint for GTA Online and RDR2.
+rockstargames.com              # Main website and Social Club login.
+scv2.rockstargames.com         # Social Club v2 API - stats and leaderboards.
+socialclub.rockstargames.com   # ESSENTIAL: Syncs Rockstar Achievements and data.
+www.rockstargames.com          # Primary web interface and store.
+
+# --- SONY / PLAYSTATION ---
+account.sonyentertainmentnetwork.com # Account management portal.
+api.playstation.com            # Core PSN API for console-side service calls.
+app.np.ac.playstation.com      # PlayStation App notification endpoint.
+auth.api.sonyentertainmentnetwork.com # OAuth login API primary gateway.
+ca.account.sony.com            # SSO cookie endpoint for web sign-in.
+fus01.ps3.update.playstation.net # Firmware update server (PS4/PS5).
+gamelist.api.playstation.com   # Game library and played-game tracking.
+gplaystation.com               # PlayStation Store content delivery CDN.
+id.sonyentertainmentnetwork.com # Identity/sign-in redirect endpoint.
+lp1.akamaized.net              # Akamai CDN node used for PSN.
+my.account.sony.com            # Modern Sony account hub.
+my.playstation.com             # User account dashboard and profile.
+playstation.com                # Main PlayStation website and store.
+playstation.net                # PSN base domain - multiplayer and NAT.
+social.playstation.com         # Friends list and party backend.
+sonyentertainmentnetwork.com   # Root Sony Entertainment Network domain.
+store.playstation.com          # PlayStation Store (purchases, DLC).
+trophy.api.playstation.com     # Trophy sync and leaderboard data.
+www.playstation.com            # Primary web storefront.
+
+# --- STEAM (Valve) ---
+api.steampowered.com           # Steamworks Web API - stats, achievements.
+checkout.steampowered.com      # Required for the shopping cart and checkout.
+help.steampowered.com          # Steam support portal and refund requests.
+steam-chat.com                 # Friends list backend and real-time chat.
+steam-static.com               # Static assets like images and CSS.
+steamcdn-a.akamaihd.net        # Akamai CDN profile pictures and achievement icons.
+steamcommunity-a.akamaihd.net  # Akamai CDN Steam Community page assets.
+steamcommunity.com             # Steam Overlay, Profiles, Trading, and Market.
+steamcontent.com               # Critical for downloading game updates and mods.
+steampipe.akamaized.net        # Primary game file pipeline CDN for downloads.
+steampowered.com               # Main store, login, and account management.
+steamstore-a.akamaihd.net      # Akamai CDN store page images and artwork.
+steamuserimages-a.akamaihd.net # Akamai CDN user screenshots and artwork.
+steamusercontent.com           # Cloud storage for screenshots and user files.
+www.steampowered.com           # Main web portal front-end.
+
+# --- SYSTEM & GAME ENGINES ---
+ctldl.windowsupdate.com        # Certificate Trust List for Windows cert updates.
+dl.delivery.mp.microsoft.com   # Windows Store game downloads/updates.
+licensing.mp.microsoft.com     # Verifies license for MS Store/Game Pass games.
+ocsp.digicert.com              # DigiCert OCSP validates SSL certs for launchers.
+ocsp.pki.goog                  # Google OCSP used by launchers.
+symbolserver.microsoft.com     # Microsoft symbol server crash reporting.
+unity3d.com                    # Basic version checking for indie games.
+unrealengine.com               # Unreal Engine backend and Epic verification.
+
+# --- UBISOFT CONNECT ---
+api-ubiservices.ubi.com        # Core login handshake.
+avatars.ubisoft.com            # User profile pictures.
+cdn.ubisoft.com                # DLC thumbnails and patch delivery.
+cms-cache.ubisoft.com          # Required for the launcher's banner news feed.
+connect.ubisoft.com            # Web login portal.
+overlay.ubisoft.com            # Enables in-game social menu (Shift+F2).
+public-ubiservices.ubi.com     # ESSENTIAL: Core API for session tokens and DRM.
+social.cdn.ubisoft.com         # Friend avatars and social data.
+static-dm.ubisoft.com          # ESSENTIAL: Hosts store banners and modules.
+static-news.ubisoft.com        # Hosts news assets and promotional banners.
+static-ubiservices.ubi.com     # Challenges, rewards, and XP tracking.
+static3.cdn.ubi.com            # Key CDN for news layout and images.
+staticctf.ubisoft.com          # Web framework for login and account pages.
+ubi.com                        # Legacy login and platform authentication.
+ubiservices.cdn.ubi.com        # Delivers background services for the launcher.
+ubisoft-connect.ubi.com        # Launcher synchronization.
+ubisoft-orbit.com              # ESSENTIAL: Account service bridge.
+ubisoft.com                    # Main account and store server.
+ubisoftentertainment.com       # Regional account auth and in-game store calls.
+ubistatic-a.ubisoft.com        # Primary host for images and CSS.
+ubistatic2-a.ubisoft.com       # Redirect for news and achievement art.
+uplay.com                      # ESSENTIAL: Legacy login modules.
+www.ubisoft.com                # Main landing page.
+
+# --- XBOX & MICROSOFT GAMING ---
+achievements.xboxlive.com      # Direct endpoint for Xbox achievement syncing.
+assets1.xboxlive.com           # Xbox console OS update asset delivery.
+attestation.xboxlive.com       # Verifies device integrity for secure login.
+auth.xboxlive.com              # Core handshake for Bedrock login.
+cert.mgt.xboxlive.com          # Certificate management for Xbox connections.
+clientconfig.passport.net      # Legacy/Device-based authentication handshake.
+def-vef.xboxlive.com           # Device enforcement and violation checking.
+device.auth.xboxlive.com       # Hardware-level authentication for PC/Console.
+displaycatalog.mp.microsoft.com # Game Pass library browsing and entitlement.
+eds.xboxlive.com               # Entertainment Discovery Service (metadata).
+g.live.com                     # Achievement upload and MS account sync.
+gamepass.com                   # Game Pass portal and subscription management.
+geo-prod.do.dsp.mp.microsoft.com # Geolocation routing for Game Pass delivery.
+help.ui.xboxlive.com           # In-shell help and support UI assets.
+licensing.xboxlive.com         # Game licence verification for Xbox titles.
+login.live.com                 # Primary Microsoft account login portal.
+login.microsoftonline.com      # Azure/Office/Xbox secondary login backend.
+microsoft.com                  # Base domain for MSA login.
+msedge.net                     # Microsoft/Xbox web resources and layout.
+msftncsi.com                   # NCSI root domain.
+msgamestudios.com              # Identity verification for Microsoft-owned games.
+notify.xboxlive.com            # Real-time push notifications.
+playfabapi.com                 # Required for Minecraft Marketplace and Bedrock.
+settings-win.data.microsoft.com # Xbox App game installs and downloads.
+title.auth.xboxlive.com        # Per-title authentication handshake for Xbox.
+title.mgt.xboxlive.com         # Required for "Logging in" screen.
+user.auth.xboxlive.com         # Specific user verification for login.
+www.gamepass.com               # Marketing and login site for Game Pass.
+www.msftncsi.com               # MS Network Connectivity Status Indicator.
+www.xbox.com                   # Web storefront for Xbox.
+xbox.com                       # Main Xbox portal and web profile.
+xboxab.com                     # Asset bridge for Xbox.com.
+xflight.xboxlive.com           # Xbox Insider ring updates.
+xgpuweb.xboxlive.com           # Xbox Cloud Gaming (xCloud) web streaming.
+xgpuwebf2p.xboxlive.com        # xCloud free-to-play streaming variant.
+xboxlive.com                   # Multiplayer, Party Chat, and Gamertags.
+xsts.auth.xboxlive.com         # Security token service (The "Login" gatekeeper).
+
+###############################################################################
+# REMOVED FROM UPSTREAM
+###############################################################################
+#
+# Each line below is in the upstream Jayconius list and is deliberately NOT in
+# ours. Advertising and telemetry only -- no game service was removed. If a
+# launcher breaks, the cause is above this line, not here.
+#
+# telemetry.2k.com                                  2K telemetry
+# prod-data-energon.infra-ext.activision.com        Activision data collection
+# s.activision.com                                  Activision telemetry
+# telemetry.prod.bethesda.net                       Bethesda telemetry
+# telemetry-in.battle.net                           Blizzard telemetry
+# internal.pinnacle.ad.ea.com                       EA ad endpoint
+# sdk.split.io                                      Split.io experimentation SDK
+# telemetry.ea.com                                  EA telemetry -- was overriding a gravity block
+# datarouter.ol.epicgames.com                       Epic telemetry -- was overriding a gravity block
+# metrics.ol.epicgames.com                          Epic metrics
+# tracking.epicgames.com                            Epic marketing tracking -- was overriding a gravity block
+# insights-collector.gog.com                        GOG analytics
+# account-telemetry.roblox.com                      Roblox telemetry
+# client-telemetry.roblox.com                       Roblox telemetry
+# metrics.roblox.com                                Roblox metrics -- was overriding a gravity block
+# rbxtrk.com                                        Roblox tracking domain -- was overriding a gravity block
+# tracing.roblox.com                                Roblox tracing
+# config.unityads.unity3d.com                       Unity Ads config endpoint -- blocked by 4 lists incl. our own, allowed here
+# v10.events.data.microsoft.com                     Windows telemetry
+# v20.events.data.microsoft.com                     Windows telemetry
+# vortex.data.microsoft.com                         Windows telemetry
+# watson.telemetry.microsoft.com                    Windows error/telemetry -- was overriding a gravity block
+# xboxexperiencesprod.experimentation.xboxlive.com  Xbox experimentation
+#
+# Total removed: 23 (advertising/telemetry) + 31 (Roblox, see below)
+#
+# Also de-duplicated (kept, but listed once instead of twice):
+#   arkoselabs.com -- appears twice upstream. It is CAPTCHA/login verification
+#   and is REQUIRED; it is still in this file, just not repeated.
+#
+# Roblox -- removed as a whole section, by decision rather than by category.
+# Every upstream ROBLOX entry (31 of them: roblox.com, rbxcdn.com, rbxinfra.net
+# and their hosts) is gone from this file and blocked in lists/blocked-games.txt.
