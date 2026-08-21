@@ -86,6 +86,10 @@ asked*, and that something is sometimes a previous session.
 
 Confirm a real gap with: answered a real IP **and** absent from `gravity`.
 
+Checking `gravity` needs care: **ABP entries are stored as `||domain^`**, so
+`where domain = 'example.com'` returns nothing even when the entry is present
+and blocking. Use `LIKE '%example%'`, or skip the table and trust `dig`.
+
 ## Step 3 — classify
 
 Whole-domain ABP into `lists/ad-networks.txt`. Strict form only — `||domain^`,

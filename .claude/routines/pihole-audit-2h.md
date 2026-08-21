@@ -9,19 +9,27 @@ guessing. Read `.claude/rules/pihole-lists.md` first — it governs every edit.
 This is the most important step. The routine runs 12× a day and must produce
 **no output, no PR, no story, and no Jira noise** on a quiet cycle.
 
+**Exclude `127.0.0.1` from the freshness check.** This routine verifies its own
+work with `dig`, and those queries get logged. Measuring `max(timestamp)` across
+all clients makes every cycle look busy even when no real device has spoken to
+Pi-hole in days — that exact test misread the situation twice on 2026-08-21. The
+question is *are real devices querying*, so ask that directly:
+
 ```bash
-ssh famla@10.77.77.10 "sudo -n pihole-FTL sqlite3 /etc/pihole/pihole-FTL.db \
-  \"select datetime(max(timestamp),'unixepoch') from queries;\""
+ssh famla@10.77.77.10 "sudo -n pihole-FTL sqlite3 /etc/pihole/pihole-FTL.db \"select client, count(*), datetime(max(timestamp),'unixepoch') from queries where client != '127.0.0.1' group by client order by 3 desc;\""
 ```
 
 Stop immediately, reporting one line, if any of these hold:
 
-- The newest query is **older than the previous run** — nothing new was logged.
-- The log window is empty, or `/var/log/pihole/pihole.log` is 0 bytes while
-  `dns.queryLogging` is `true`. That means clients are not querying Pi-hole.
+- No non-localhost client has queried since the previous run — nothing real was
+  logged, whatever `max(timestamp)` says across all clients.
+- No non-localhost client appears at all, or `/var/log/pihole/pihole.log` is
+  0 bytes while `dns.queryLogging` is `true`. That means clients are not
+  querying Pi-hole. **A healthy-looking log size proves nothing** — it can be
+  entirely this routine's own verification traffic.
   **Say so once, then stop** — do not re-file this every 2 hours. It is a
-  standing condition needing a manual, elevated-shell fix on the Windows host,
-  and it is never this routine's job to fix.
+  standing condition needing a manual, elevated change (router/RA advertisement
+  and the Windows host adapter), and it is never this routine's job to fix.
 - Another session has an open PR against `Bonkey-Saftey` touching `lists/`.
   Check with `gh pr list`. Concurrent sessions share this repo.
 
@@ -90,6 +98,12 @@ Anything else waits for a human. Then:
 ```bash
 ssh famla@10.77.77.10 'sudo -n pihole -g'
 ```
+
+If a freshly added entry still resolves, it is almost always the DNS cache, not
+the list. Check the adlist row's parsed `number` first, then
+`sudo -n pihole restartdns`. **Never run `pihole flush`** — it clears the query
+log, not the DNS cache, and destroys the history the next cycle needs. That
+mistake cost a window of log data on 2026-08-21.
 
 Verify **every** added domain returns `0.0.0.0`, and run regression checks on
 `www.microsoftcasualgames.com`, `settings-win.data.microsoft.com` and
