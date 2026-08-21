@@ -15,7 +15,7 @@ at `10.77.77.10` — see `provision/` to rebuild that server from scratch.
 | `adlists.txt` | Third-party adlist URLs to register with Pi-hole. |
 | `lists/ms-game-ads.txt` | Our own hosts-format list — the MSN ad broker and the ad networks the Casual Games suite pulls video interstitials from. |
 | `lists/ad-networks.txt` | ABP-syntax block list covering those same ad networks at whole-domain level, so new vendor subdomains are caught without edits. |
-| `provision/` | Script that rebuilds the Pi-hole VM these lists run on. |
+| `provision/` | Scripts that rebuild the Pi-hole VM these lists run on, and undo that rebuild. |
 | `lists/allowlist.txt` | Exact allows that override the broad third-party lists. **Do not prune this to tighten filtering** — every entry breaks something if blocked. |
 
 ## Install
@@ -129,3 +129,16 @@ Resolve-DnsName cdn.taboola.com | Select-Object Name, IPAddress
 A real IP here means Pi-hole is being bypassed, not that the lists are wrong.
 Windows prefers IPv6 resolvers, so a router-advertised IPv6 DNS server silently
 wins over an IPv4-only Pi-hole. `provision/README.md` covers the fix.
+
+## If Pi-hole breaks something you needed
+
+The reverse case: filtering is working, and it has taken out an application
+along with the ads. Identify the domain first —
+
+```bash
+ssh <user>@10.77.77.10 'sudo pihole -t'
+```
+
+— then add it to `lists/allowlist.txt`, which is what that file is for. To back
+the whole thing out of a machine instead, `provision/Remove-PiholeVM.ps1`
+restores its DNS and, optionally, removes the VM. See `provision/README.md`.
