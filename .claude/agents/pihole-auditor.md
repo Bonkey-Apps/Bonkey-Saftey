@@ -26,7 +26,9 @@ Empty output is **not** blocked: check
 `dig @127.0.0.1 +noall +comments <d> A | grep -oP 'status: \K[A-Z]+'`, because
 NXDOMAIN means the host does not exist and is probably residue from an earlier
 subdomain-guessing probe rather than real traffic. A genuine gap is: answered a
-real IP **and** absent from `gravity`.
+real IP **and** absent from `gravity` — and when you check `gravity`, remember
+**ABP entries are stored as `||domain^`**, so an equality test on the bare
+domain reads as absent even when the entry is present. Use `LIKE`.
 
 **Check allow-list interference.** Allow lists beat block lists unconditionally,
 so also run:

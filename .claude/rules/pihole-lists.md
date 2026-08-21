@@ -51,6 +51,18 @@ not exist:
 dig @10.77.77.10 +noall +comments <domain> A | grep -oP 'status: \K[A-Z]+'
 ```
 
+**Do not test coverage by looking for a bare domain in `gravity`.** ABP entries
+are stored in the ABP form, so this returns nothing even when the entry is
+present and working:
+
+```sql
+select domain from gravity where domain = 'click2cart.com';   -- empty, misleading
+select domain from gravity where domain = '||click2cart.com^'; -- what is actually stored
+```
+
+A `LIKE '%click2cart%'` finds either form. Better still, do not ask `gravity` at
+all — ask `dig`.
+
 A domain appearing in the logs only proves *something asked*. A batch of
 `*.microsoftcasualgames.com` ad-looking hosts turned out to be all NXDOMAIN —
 residue of an earlier subdomain-guessing probe, not the games.
@@ -131,3 +143,24 @@ sudo -n pihole-FTL sqlite3 /etc/pihole/gravity.db "select type,domain,enabled fr
 
 Report them when you find them. There is no `sqlite3` binary on the box — FTL's
 built-in one is the only option.
+
+## 11. Two commands that do not do what their names suggest
+
+**`pihole flush` does not flush the DNS cache.** It clears the query log and the
+FTL query database. Running it to make a new block take effect destroys the
+history the next audit needs. On 2026-08-21 it wiped a full window of queries
+for exactly that reason.
+
+To make a freshly added list entry take effect, the entry is almost never the
+problem — the DNS cache is. Check the adlist row's parsed `number` to confirm
+gravity accepted the file, then:
+
+```bash
+sudo -n pihole restartdns
+```
+
+**`pihole deny --delmode <domain>` has silently failed to remove an entry.**
+Check `domainlist` afterwards rather than trusting the exit code. And a
+`LIKE '%foo.example.com%'` will not match a regex row, because the stored
+pattern contains escapes (`(\.|^)foo\.example\.com$`) — delete regex rows by
+`type = 3`.
