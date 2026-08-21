@@ -69,6 +69,69 @@
 ||adbroker.mp.dse.microsoft.com^
 ||msmonplat.trafficmanager.net^
 
+##### Found leaking through gravity -- Pi-hole log audit 2026-08-21 ##########
+# Every entry below was queried between 2026-08-12 and 2026-08-20 and was
+# ANSWERED with a real IP by this Pi-hole (verified host by host with
+# `dig @127.0.0.1`, not inferred from the list files). None of them appear in
+# the gravity table at all, so oisd/StevenBlack do not cover them either.
+# Grouped by what the vendor is, so a future reader can judge each on its own.
+
+# Cookie-sync / identity-resolution chains. These showed up as a cluster of
+# near-identical hosts (tracenep.*, gtracenep.*, n-N-nycx.*), which is what a
+# sync hop looks like -- exact-host entries would be obsolete within a week,
+# so they are whole-domain.
+||admaster.cc^
+||bidprism.com^
+||bidnest.cc^
+||adworknow.com^
+||csdata3.com^
+||sptag2.com^
+||ad-m.net^
+||cookiesyncmtrk.com^
+||meazy-ads.com^
+||pmbmonetize.live^
+||lunamedia.live^
+||rtactivate.com^
+
+# Exchanges / SSPs / bidders not already listed above.
+||amx1.net^
+||indexww.com^
+||pokkt.com^
+||fwmrm.net^
+# Yahoo's bidder. Scoped to the ybp host -- ||yahoo.com^ would take out mail
+# and search along with it.
+||ybp.yahoo.com^
+# Disqus sells its ad inventory through Zeta Global; ssp.disqus.com resolves
+# into zetaglobal.io. Scoped to the ssp host so comment threads still load.
+||ssp.disqus.com^
+
+# Audience / DMP / measurement vendors.
+||semasio.net^
+||digitalaudience.io^
+||ib-ibi.com^
+||userreport.com^
+||sundaysky.com^
+
+# Creative serving.
+||flashtalking.com^
+# Taboola on its own registrable domain. ||taboola.com^ above does NOT cover
+# this -- api-taboola.com is a separate domain, not a subdomain.
+||api-taboola.com^
+
+# DoubleVerify's newer domain. The ||doubleverify.com^ entry above caught the
+# tpsc-* shards; cdn.dv.tech got through because it is a different domain.
+||dv.tech^
+
+# Amazon advertising. aax.amazon-adsystem.com and c.amazon-adsystem.com were
+# already blocked as exact hosts, but the regional shards
+# (aax-events-cell02-cf.us-east.3px.axp.*, aes.us-east.3px.*, sq-tungsten-ts.*)
+# were not -- the same shard problem that motivated ||doubleverify.com^.
+||amazon-adsystem.com^
+# Amazon's A9 "tungsten" ad service on two further domains. Scoped to the ad
+# subdomain on amazon.dev, which is shared with unrelated Amazon services.
+||tq-tungsten.com^
+||adsqtungsten.a9.amazon.dev^
+
 # --- Not expressible here --------------------------------------------------
 # ABP parsing has no wildcard form, so a broad casino word-match cannot live in
 # a subscribed list. If casino creatives still get through after gambling-only
