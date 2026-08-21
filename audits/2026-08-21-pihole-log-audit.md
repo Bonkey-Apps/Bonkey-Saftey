@@ -32,7 +32,7 @@ Domains already answering `0.0.0.0` were dropped from the PR.
 
 ## Confirmed leaks — added to `lists/ad-networks.txt`
 
-All 30 were answered with a real IP, and none of them exist in the `gravity`
+All 29 were answered with a real IP, and none of them exist in the `gravity`
 table at all, so oisd and StevenBlack miss them too.
 
 | Domain added | Seen as | Why |
