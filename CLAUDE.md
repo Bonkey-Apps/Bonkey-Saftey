@@ -41,6 +41,14 @@ confirmation, classification, PR, and the BS change request. The read-only
 **`pihole-auditor`** agent does the investigation half without spending context
 on hundreds of domains of log output.
 
+## Deploying a list
+
+Use the **`pihole-add-list`** skill to subscribe, unsubscribe or swap a list.
+Merging a PR here deploys nothing (rule 2), there is no `pihole adlist` CLI —
+subscriptions are rows in `gravity.db` — and SSH quoting mangles inline SQL, so
+the skill feeds it from a file. It also covers reading gravity's parsed counts
+as the acceptance check, and the `domainlist` table for local denies.
+
 Audits are recorded under `audits/YYYY-MM-DD-pihole-log-audit.md`, and each one
 states its coverage window, the confirmed leaks, and the domains deliberately
 **not** blocked with reasons.
