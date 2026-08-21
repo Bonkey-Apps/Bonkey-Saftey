@@ -1,0 +1,54 @@
+# bonkey-saftey :: blocked-games.txt
+# Subscribe to this file in Pi-hole as a BLOCK list (Lists -> Add, type
+# "Block list"):
+#   https://raw.githubusercontent.com/Bonkey-Apps/Bonkey-Saftey/main/lists/blocked-games.txt
+#
+# Format: ABP syntax. ||example.com^ blocks example.com AND every subdomain.
+# Requires Pi-hole Core >= 5.16 / FTL >= 5.22. v6 qualifies.
+#
+# This file is different in kind from the rest of the repo. Everything else here
+# de-ads a game the household still plays. This blocks whole games outright --
+# a parenting decision, not an ad-filtering one. Kept in its own file so it can
+# be unsubscribed in one action without touching ad coverage, and so nobody
+# mistakes a deliberate game block for an over-broad ad rule.
+#
+# Anything listed here MUST NOT appear in lists/allowlist.txt or
+# lists/gaming-allowlist.txt. Allow lists outrank block lists unconditionally in
+# Pi-hole, so a single stray allow entry silently defeats the whole block. This
+# is not theoretical: config.unityads.unity3d.com sat in gravity from four
+# separate block lists and still resolved, because one subscribed allow list
+# carried it.
+
+##### Roblox ###################################################################
+# Added 2026-08-21 by decision. The 31 Roblox entries that the upstream
+# Jayconius gaming whitelist carried were removed from lists/gaming-allowlist.txt
+# in the same change -- leaving them there would have cancelled every line below.
+#
+# Whole-domain rather than exact hosts: the client spreads across dozens of
+# hosts (assetgame., assetdelivery., clientsettings.api., ephemeralcounters.api.,
+# realtime-signalr. ...) and Roblox adds more freely.
+||roblox.com^
+# CDN for game assets, textures and the installer. Its apex has no A record but
+# its hosts do (setup.rbxcdn.com, c0.rbxcdn.com, fts.rbxcdn.com); ABP covers the
+# subdomains regardless.
+||rbxcdn.com^
+||rbxinfra.net^
+||rbxtrk.com^
+# Developer-facing domains. Both resolve and are Roblox-named. Included to close
+# the obvious alternate path rather than because either was seen in the logs --
+# noting that honestly so a future reader does not take it as observed traffic.
+||roblox.dev^
+||robloxdev.com^
+
+# --- Checked and deliberately NOT included ------------------------------------
+# robloxlabs.com, rbxsignals.com and rbx.com were probed on 2026-08-21 and
+# returned no records for their apex or common hosts. No evidence they are in
+# use, so they are not blocked on the strength of the name alone. Re-check if
+# Roblox starts resolving again through an unexpected domain.
+#
+# --- What this does and does not achieve --------------------------------------
+# DNS blocking stops the normal client and the website. It does NOT stop a
+# client that talks to hardcoded IPs, a device using DoH/DoT to bypass Pi-hole,
+# or a phone on cellular. Per the known IPv6 finding in this network, also
+# confirm the host is actually querying Pi-hole before concluding this works --
+# check the resolvers on the LAN adapter, not just `dig @10.77.77.10`.

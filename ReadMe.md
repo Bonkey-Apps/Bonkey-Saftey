@@ -17,6 +17,8 @@ at `10.77.77.10` — see `provision/` to rebuild that server from scratch.
 | `lists/ad-networks.txt` | ABP-syntax block list covering those same ad networks at whole-domain level, so new vendor subdomains are caught without edits. |
 | `provision/` | Scripts that rebuild the Pi-hole VM these lists run on, and undo that rebuild. |
 | `lists/allowlist.txt` | Exact allows that override the broad third-party lists. **Do not prune this to tighten filtering** — every entry breaks something if blocked. |
+| `lists/gaming-allowlist.txt` | Our fork of the Jayconius gaming whitelist, with its advertising and telemetry entries stripped out. Replaces that subscription — do not run both. |
+| `lists/blocked-games.txt` | Whole games blocked by decision rather than by ad category. Currently Roblox. Separate file so it can be dropped in one action without touching ad coverage. |
 
 ## Install
 
@@ -32,6 +34,7 @@ URL from `adlists.txt`, plus both of this repo's own lists:
 ```
 https://raw.githubusercontent.com/Bonkey-Apps/Bonkey-Saftey/main/lists/ms-game-ads.txt
 https://raw.githubusercontent.com/Bonkey-Apps/Bonkey-Saftey/main/lists/ad-networks.txt
+https://raw.githubusercontent.com/Bonkey-Apps/Bonkey-Saftey/main/lists/blocked-games.txt
 ```
 
 ### 2. Allow list
@@ -40,11 +43,39 @@ Same page, but set the type to **Allow list**:
 
 ```
 https://raw.githubusercontent.com/Bonkey-Apps/Bonkey-Saftey/main/lists/allowlist.txt
+https://raw.githubusercontent.com/Bonkey-Apps/Bonkey-Saftey/main/lists/gaming-allowlist.txt
 ```
+
+**Unsubscribe the upstream gaming whitelist when you add ours**, or the entries
+we removed come straight back:
+
+```
+https://raw.githubusercontent.com/Jayconius/Pi-Hole-Gaming-Lists/main/Gaming-Whitelist.txt   <- remove this one
+```
+
+Both compile into the same `antigravity` table and an allow entry from *any*
+subscribed allow list wins, so running both is the same as running neither.
 
 Pi-hole stores this in the same `adlist` table with `type = 1` (`0` is a block
 list) and compiles it into the `antigravity` table, which is what lets it
 override the broad third-party lists.
+
+### Allow lists outrank block lists — always
+
+This is the single rule that explains most of the surprising behaviour here. A
+domain can sit in `gravity` from four separate block lists and still resolve if
+one subscribed allow list carries it. That is not hypothetical: on 2026-08-21
+`config.unityads.unity3d.com` was blocked by StevenBlack, oisd, the Jayconius
+gaming adlist **and** our own `ms-game-ads.txt`, and resolved anyway, because
+the Jayconius gaming *whitelist* allowed it.
+
+Consequences worth internalising:
+
+- Adding another block entry can never override an allow entry. Remove the
+  allow, or use a local deny (`pihole deny <domain>`), which does outrank
+  subscribed allow lists.
+- Anything in `lists/blocked-games.txt` must not appear in either allow list.
+- Before adopting a third-party allow list, read every line of it.
 
 ### 3. Rebuild gravity
 
