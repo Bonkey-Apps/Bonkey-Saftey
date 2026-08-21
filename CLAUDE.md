@@ -34,6 +34,19 @@ dig @10.77.77.10 +short <domain> A             # 0.0.0.0 => blocked
 Never change DNS on the Windows host's `vEthernet (LAN Bridge)` adapter from a
 script. See rule 9.
 
+## Tooling lives in this repo
+
+`.claude/` carries everything an agent needs, versioned alongside the lists it
+governs, so a change to the method is reviewed the same way a change to a list
+is:
+
+| Path | What |
+|---|---|
+| `.claude/rules/pihole-lists.md` | the invariants — read before editing `lists/` |
+| `.claude/skills/pihole-ad-audit/` | find what is getting through, and ship it |
+| `.claude/skills/pihole-add-list/` | subscribe/unsubscribe a list and verify it took |
+| `.claude/agents/pihole-auditor.md` | read-only investigator |
+
 ## Auditing what is getting through
 
 Use the **`pihole-ad-audit`** skill for the full method — log sweep, live
