@@ -112,19 +112,28 @@ immediately**, re-run gravity, and file a story.
 
 ## Step 5 — file the questionable ones
 
-One Jira story in project **BS**, issue type **Story**, markdown, labels
-`ai`, `pihole`, `needs-decision`. Batch them — one story per cycle, not one per
-domain.
+One Jira story in project **BI** ("Bonkey Infra"), issue type **Story**,
+markdown, component **`safety`**, labels `ai`, `pihole`, `needs-decision`,
+`agent-proposed`. Batch them — one story per cycle, not one per domain.
+
+`safety` is a **component**, not a label — do not add a `safety`/`saftey` label
+beside it. `agent-proposed` marks it as something you raised rather than were
+asked for, which means it waits for the owner and you do not start it.
+
+Project **BS** is decommissioned (ADR-0003); nothing new is filed there.
 
 Each entry: the domain, hosts observed, query count, what the vendor appears to
 be, and **the specific breakage risk** that stopped it being auto-blocked. State
 the recommendation and what you need decided.
 
-Do not re-file a domain already covered by an open BS story. Check first:
+Do not re-file a domain already covered by an open story. Check first:
 
 ```
-jql: project = BS AND status != Done AND labels = needs-decision
+jql: project = BI AND component = safety AND status != Done AND labels = needs-decision
 ```
+
+Filter by status **name** as written above, never by `statusCategory` — the
+categories are miscategorised on some boards and the query fails silently.
 
 ## Step 6 — report
 

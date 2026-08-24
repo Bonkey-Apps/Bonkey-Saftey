@@ -50,7 +50,7 @@ is:
 ## Auditing what is getting through
 
 Use the **`pihole-ad-audit`** skill for the full method — log sweep, live
-confirmation, classification, PR, and the BS change request. The read-only
+confirmation, classification, PR, and the BI change request. The read-only
 **`pihole-auditor`** agent does the investigation half without spending context
 on hundreds of domains of log output.
 
@@ -68,6 +68,13 @@ states its coverage window, the confirmed leaks, and the domains deliberately
 
 ## Tracking
 
-Change requests go to Jira project **BS** ("Bonkey Safety") as issue type
-**Task** — there is no "Change" type. Write descriptions in markdown; mixing
-Jira wiki markup renders literally.
+Change requests go to Jira project **BI** ("Bonkey Infra") as issue type
+**Task**, with the **`safety`** component — there is no "Change" type. Write
+descriptions in markdown; mixing Jira wiki markup renders literally.
+
+Project **BS** ("Bonkey Safety") is decommissioned (ADR-0003 in `bonkey-org`).
+Pi-hole, DNS and Brave policy are the Infra manager's remit now; BS-1 and BS-2
+remain readable as history. Nothing new is filed there.
+
+`safety` is a **component**, not a label — do not add a `safety`/`saftey` label
+alongside it. And filter BI by status **name**, never by `statusCategory`.
