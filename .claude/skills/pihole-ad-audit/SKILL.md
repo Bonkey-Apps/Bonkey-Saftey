@@ -1,14 +1,17 @@
 ---
 name: pihole-ad-audit
-description: Audit the Bonkey Pi-hole's logs for ad domains that got through, turn the confirmed ones into Bonkey-Saftey list entries, and ship them via PR + BS change request. Use whenever a request mentions Pi-hole logs, ads getting through, blocklist gaps, "check what's leaking", updating Bonkey-Saftey lists, or blocking/unblocking a site or game on the home network.
+description: Audit the Bonkey Pi-hole's logs for ad domains that got through, turn the confirmed ones into Bonkey-Saftey list entries, and ship them via PR + BI change request. Use whenever a request mentions Pi-hole logs, ads getting through, blocklist gaps, "check what's leaking", updating Bonkey-Saftey lists, or blocking/unblocking a site or game on the home network.
 ---
 
 # Auditing the Bonkey Pi-hole
 
 Box: **`10.77.77.10`**, SSH as `famla` with the user's ed25519 key, passwordless
 `sudo -n`. Lists repo: `Bonkey-Saftey` (note the spelling), cloned at
-`Documents/Git/bonkey-apps/Bonkey-Saftey`. Jira project **BS** ("Bonkey Safety")
-on cloudId `4d9de610-c3c2-40bf-9e75-6d55c0c070c5`.
+`Documents/Git/bonkey-apps/Bonkey-Saftey`. Jira project **BI** ("Bonkey Infra"),
+component **`safety`**, on cloudId `4d9de610-c3c2-40bf-9e75-6d55c0c070c5`.
+
+Project **BS** ("Bonkey Safety") is decommissioned — Infra owns this work now
+(ADR-0003). BS-1 and BS-2 stay readable as history; nothing new goes there.
 
 ## The one rule that explains everything
 
@@ -132,10 +135,21 @@ Count what you added rather than asserting it:
 git diff origin/main -- lists/ad-networks.txt | grep -c '^+||'
 ```
 
-Then a BS Task as the change request — issue type **Task** (there is no
-"Change" type), `contentFormat: "markdown"` and **markdown only**; mixing Jira
-wiki markup (`h2.`, `|| header ||`) renders literally. Include rollout,
-acceptance oracle, and rollback.
+Then a **BI** Task as the change request — issue type **Task** (there is no
+"Change" type), with `components: [{"name": "safety"}]` so it is filed as
+safety work rather than build infrastructure. Use `contentFormat: "markdown"`
+and **markdown only**; mixing Jira wiki markup (`h2.`, `|| header ||`) renders
+literally. Include rollout, acceptance oracle, and rollback.
+
+Two BI conventions apply (bonkey-org/WORKFLOW.md):
+
+- `safety` is a **component**, not a label. Do not add a `safety` or `saftey`
+  label — one marker, not two.
+- Anything you propose rather than were asked for also takes the
+  `agent-proposed` label, and you do not start it.
+
+**Filter BI by status name, never by `statusCategory`** — the categories are
+miscategorised on some boards and the failure is silent.
 
 ## Step 5 — deploy, and know what deploying does not do
 
