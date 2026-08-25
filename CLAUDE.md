@@ -45,7 +45,7 @@ is:
 | `.claude/rules/pihole-lists.md` | the invariants — read before editing `lists/` |
 | `.claude/skills/pihole-ad-audit/` | find what is getting through, and ship it |
 | `.claude/skills/pihole-add-list/` | subscribe/unsubscribe a list and verify it took |
-| `.claude/agents/pihole-auditor.md` | read-only investigator |
+| `pihole-auditor` (org-level, `bonkey-org/agents/`) | read-only investigator |
 
 ## Auditing what is getting through
 
