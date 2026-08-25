@@ -15,7 +15,9 @@ at `10.77.77.10` — see `provision/` to rebuild that server from scratch.
 | `adlists.txt` | Third-party adlist URLs to register with Pi-hole. |
 | `lists/ms-game-ads.txt` | Our own hosts-format list — the MSN ad broker and the ad networks the Casual Games suite pulls video interstitials from. |
 | `lists/ad-networks.txt` | ABP-syntax block list covering those same ad networks at whole-domain level, so new vendor subdomains are caught without edits. |
-| `provision/` | Scripts that rebuild the Pi-hole VM these lists run on, and undo that rebuild. |
+| `provision/` | Scripts that rebuild the Pi-hole VM these lists run on, and undo that rebuild, plus the Hyper-V enablement that is their prerequisite. |
+| `brave/` | Brave browser policy for the Windows host — not a Pi-hole list. See `brave/README.md` for which scripts are actually in force. |
+| `docs/archive/` | Superseded documents from the dead Docker Pi-hole lane. **Do not follow them** — see `docs/archive/README.md`. |
 | `lists/allowlist.txt` | Exact allows that override the broad third-party lists. **Do not prune this to tighten filtering** — every entry breaks something if blocked. |
 | `lists/gaming-allowlist.txt` | Our fork of the Jayconius gaming whitelist, with its advertising and telemetry entries stripped out. Replaces that subscription — do not run both. |
 | `lists/blocked-games.txt` | Whole games blocked by decision rather than by ad category. Currently Roblox. Separate file so it can be dropped in one action without touching ad coverage. |
