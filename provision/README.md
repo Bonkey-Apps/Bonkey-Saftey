@@ -18,7 +18,8 @@ downloading ~3.9M domains.
 |---|---|
 | Guest | Debian 12 bookworm, Gen2 UEFI, Secure Boot **off** |
 | Sizing | 1 vCPU, 1 GB startup / 512 MB minimum dynamic, 20 GB disk |
-| Network | internal switch `Pihole Internal`; host `10.77.77.1` + `fd77:77:77::1`, VM `10.77.77.10` + `fd77:77:77::10` |
+| Network | **two adapters.** `eth0` on internal switch `Pihole Internal` — host `10.77.77.1` + `fd77:77:77::1`, VM `10.77.77.10` + `fd77:77:77::10`, static. `eth1` on external switch `LAN Bridge` — DHCP from the router, serves the household |
+| MACs | **pinned**, not dynamic: `00:15:5D:01:3F:01` (internal) and `00:15:5D:01:3F:10` (LAN). netplan matches on them |
 | Pi-hole | v6, upstreams `1.1.1.1` / `1.0.0.1`, `listeningMode = LOCAL`, blocking mode `NULL` |
 | Lists | 11 block + 2 allow, matching the live box |
 
@@ -75,6 +76,47 @@ grep -E 'Done|gravity domains' /var/log/pihole/gravity-hourly.log
 `oscdimg` from the Windows ADK is used for the cloud-init seed if present. It
 usually is not, so the script falls back to a small FAT32 VHDX labelled
 `CIDATA`, which NoCloud accepts identically. No ADK install needed.
+
+## Why there are two adapters
+
+`eth0` alone is not enough, and the reason is not obvious.
+
+`Pihole Internal` is an **internal** Hyper-V switch. `PiholeNAT` lets the VM
+reach the internet outbound, but there is no route **inbound** from the LAN and
+IP forwarding is disabled. So `10.77.77.10` is reachable from this host and
+**from nothing else** — no phone, no tablet, no TV. Filtering that looks fine
+from the machine you are testing on protects exactly one device.
+
+`eth1` fixes that by putting the VM on `192.168.1.0/24` directly.
+
+It takes a DHCP lease but **accepts neither routes nor DNS from it**
+(`use-routes: false`, `use-dns: false`). That is deliberate: the internal
+default route via `10.77.77.1` and the upstream resolvers stay authoritative,
+so adding the LAN adapter cannot change how the VM itself resolves or routes.
+
+`listeningMode = LOCAL` still works — `eth1` is *on* the LAN subnet, so LAN
+clients count as local.
+
+### Two things the script cannot do for you
+
+1. **Reserve `00:15:5D:01:3F:10` on the router's DHCP.** Without it the lease
+   drifts and anything pointing at the old address breaks.
+2. **Point the router's advertised DNS at that address, for BOTH families.**
+
+Skip the second and nothing is filtered — the VM is merely reachable.
+
+## Why the MACs are pinned
+
+netplan matches each interface **by MAC**. A dynamic MAC is therefore a latent
+outage: Hyper-V reassigns it, the match fails, the static config never applies,
+and the VM boots with no address at all.
+
+An earlier version matched `eth0` by *name* (`e*`). That was safe with one
+adapter and became dangerous with two — the glob can match either NIC, so the
+static `10.77.77.10` config could land on the LAN interface.
+
+A pinned MAC is also what a DHCP reservation binds to, so this is the same
+change that makes the reservation possible.
 
 ## The IPv6 address is not decoration
 

@@ -61,7 +61,10 @@
 param(
     [string]   $VMName      = 'pihole-vm',
     [string]   $SwitchName  = 'Pihole Internal',
-    [string]   $WorkDir     = 'C:\pihole-vm',
+    # Must match New-PiholeVM.ps1. The old default 'C:\pihole-vm' does not
+    # exist on this host, so this script silently operated on nothing while the
+    # real VM ran elsewhere. (BI-20)
+    [string]   $WorkDir     = 'C:\Users\famla\Documents\Git\bonkey-apps\pihole-vm',
     [string]   $VMIPv4      = '10.77.77.10',
     [string]   $VMIPv6      = 'fd77:77:77::10',
     [string[]] $DnsServers,

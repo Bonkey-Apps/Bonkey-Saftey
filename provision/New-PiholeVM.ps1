@@ -32,7 +32,13 @@
 param(
     [string]        $VMName             = 'pihole-vm',
     [string]        $SwitchName         = 'Pihole Internal',
-    [string]        $WorkDir            = 'C:\pihole-vm',
+
+    # Where the VM's disk actually lives. The old default was 'C:\pihole-vm',
+    # which does not exist on this host - the running VM has always lived under
+    # the bonkey-apps folder, so Remove-PiholeVM.ps1 pointed at nothing. Worse,
+    # if C:\pihole-vm were ever created, both scripts would operate on a decoy
+    # while the real appliance ran untouched. (BI-20)
+    [string]        $WorkDir            = 'C:\Users\famla\Documents\Git\bonkey-apps\pihole-vm',
 
     # Network. Host takes .1, the VM takes .10, on an isolated internal switch.
     [string]        $HostIPv4           = '10.77.77.1',
@@ -41,6 +47,21 @@ param(
     [string]        $HostIPv6           = 'fd77:77:77::1',
     [string]        $VMIPv6             = 'fd77:77:77::10',
     [int]           $PrefixV6           = 64,
+
+    # MACs are pinned, not dynamic. netplan matches each interface BY MAC, so a
+    # MAC Hyper-V is free to reassign is a latent outage: on reassignment the
+    # match fails, the static config never applies, and the VM boots with no
+    # address. A pinned MAC is also what a router DHCP reservation binds to.
+    [string]        $MacAddress         = '00155D013F01',
+
+    # Second adapter, on the LAN. Without it the Pi-hole sits on a host-only
+    # internal switch no other device can route to - filtering works for this
+    # machine and nothing else. It takes a DHCP lease from the router and
+    # accepts neither routes nor DNS from it, so the internal default route and
+    # the upstream resolvers stay authoritative. (BI-23)
+    [switch]        $SkipLan,
+    [string]        $LanSwitchName      = 'LAN Bridge',
+    [string]        $LanMacAddress      = '00155D013F10',
 
     # Guest sizing. The live VM reports 1 vCPU / ~387 MB usable / 20 GB disk.
     [int64]         $MemoryStartupBytes = 1GB,
@@ -179,6 +200,35 @@ if (-not (Test-Path $vhdx)) {
 # --------------------------------------------------------------- cloud-init --
 Step 'cloud-init seed'
 
+# netplan matches by MAC, so both interfaces need colon-lowercase form.
+# Matching eth0 by NAME ('e*') was wrong the moment a second adapter existed:
+# the glob can match either NIC, so the static 10.77.77.10 config could land on
+# the LAN interface instead.
+function ConvertTo-MacColon([string]$m) {
+    ($m -replace '[^0-9A-Fa-f]','').ToLower() -replace '(..)(?!$)','$1:'
+}
+$macColon    = ConvertTo-MacColon $MacAddress
+$lanMacColon = ConvertTo-MacColon $LanMacAddress
+
+$lanStanza = ''
+if (-not $SkipLan) {
+    $lanStanza = @"
+
+              eth1:
+                  match:
+                      macaddress: "$lanMacColon"
+                  set-name: eth1
+                  dhcp4: true
+                  dhcp6: true
+                  dhcp4-overrides:
+                      use-routes: false
+                      use-dns: false
+                  dhcp6-overrides:
+                      use-routes: false
+                      use-dns: false
+"@.TrimEnd()
+}
+
 $seedDir = Join-Path $WorkDir 'seed'
 Remove-Item $seedDir -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force -Path $seedDir | Out-Null
@@ -235,8 +285,8 @@ write_files:
                   nameservers:
                       addresses: [$nameservers]
                   match:
-                      name: e*
-                  set-name: eth0
+                      macaddress: "$macColon"
+                  set-name: eth0$lanStanza
           version: 2
 
 runcmd:
@@ -292,6 +342,28 @@ Set-VM          $VMName -AutomaticStartAction Start -AutomaticStopAction ShutDow
 
 if ($seedVhdx) { Add-VMHardDiskDrive $VMName -Path $seedVhdx }
 else           { Add-VMDvdDrive      $VMName -Path $seedIso }
+
+# Pin the internal adapter's MAC so netplan's match can never go stale.
+Set-VMNetworkAdapter $VMName -StaticMacAddress $MacAddress
+Ok "internal adapter pinned to $MacAddress"
+
+if (-not $SkipLan) {
+    Step "LAN adapter on '$LanSwitchName'"
+    if (-not (Get-VMSwitch -Name $LanSwitchName -ErrorAction SilentlyContinue)) {
+        Warn "  switch '$LanSwitchName' not found - skipping the LAN adapter."
+        Warn "  The VM will be reachable ONLY from this host, and household"
+        Warn "  filtering will not work. Create an External switch and re-run,"
+        Warn "  or add it later with Add-VMNetworkAdapter."
+    } else {
+        Add-VMNetworkAdapter $VMName -Name 'LAN' -SwitchName $LanSwitchName ``
+                             -StaticMacAddress $LanMacAddress
+        Ok "LAN adapter added, MAC $LanMacAddress"
+        Info "Reserve $LanMacAddress on the router's DHCP so the address is stable,"
+        Info "then point the router's advertised DNS at it for BOTH families."
+        Info "IPv6 matters: a router still advertising its own DNS via RA wins"
+        Info "every lookup, and filtering silently does nothing."
+    }
+}
 
 Set-VMFirmware $VMName -FirstBootDevice (Get-VMHardDiskDrive $VMName | Where-Object { $_.Path -eq $vhdx })
 Ok "$CpuCount vCPU, $([math]::Round($MemoryStartupBytes / 1MB))MB, Secure Boot off"
