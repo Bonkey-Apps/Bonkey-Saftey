@@ -43,6 +43,9 @@ is:
 | Path | What |
 |---|---|
 | `.claude/rules/pihole-lists.md` | the invariants — read before editing `lists/` |
+| `.claude/rules/agent-liveness.md` | **shared org rule** — gates run synchronously; verify the artifact, not the report |
+| `.claude/rules/agent-worktrees.md` | **shared org rule** — worktree isolation and the shared-object-store hazard |
+| `.claude/rules/memory-vault.md` | **shared org rule** — the `bonkey-memories` cross-session vault |
 | `.claude/skills/pihole-ad-audit/` | find what is getting through, and ship it |
 | `.claude/skills/pihole-add-list/` | subscribe/unsubscribe a list and verify it took |
 | `pihole-auditor` (org-level, `bonkey-org/agents/`) | read-only investigator |
@@ -78,3 +81,73 @@ remain readable as history. Nothing new is filed there.
 
 `safety` is a **component**, not a label — do not add a `safety`/`saftey` label
 alongside it. And filter BI by status **name**, never by `statusCategory`.
+
+## The shared rules are not local rules
+
+`pihole-lists.md` is this repo's own product rule. The other three
+(`agent-liveness.md`, `agent-worktrees.md`, `memory-vault.md`) are **shared org
+rules**, restaged unchanged from the primary copy in `bonkey-org/rules/` on
+branch `master` (ADR-0007). **Change them upstream, never here** — patching a
+downstream copy and leaving it to drift is how `memory-vault.md` ended up with
+three incompatible versions. All three are scoped `paths: ["**"]`, so they load
+in every session.
+
+Do not renumber or edit `pihole-lists.md` to match them; the "rule N"
+references throughout this file are its numbering.
+
+## Docs tree
+
+There is no single `docs/` root in current use — the canonical written record
+is split by purpose:
+
+| Path | What |
+|---|---|
+| `lists/` | the lists themselves; `.claude/rules/pihole-lists.md` governs edits |
+| `audits/` | dated log audits, `YYYY-MM-DD-pihole-log-audit.md` — coverage window, confirmed leaks, and what was deliberately not blocked |
+| `brave/` | Brave group-policy setup and reference |
+| `provision/` | host/VM provisioning for the box |
+| `docs/archive/` | superseded deployment material — history, not guidance |
+
+Architecture decisions are **not** kept here — ADRs live in `bonkey-org` under
+`docs/adr/` (ADR-0003 decommissioned project BS; ADR-0007 makes `bonkey-org`
+the primary copy of the shared rules).
+
+## Worktrees and the primary checkout
+
+The shared primary checkout is
+`C:/Users/famla/Documents/Git/bonkey-apps/Bonkey-Saftey`, default branch
+**`main`**. Worker agents never edit it — cut a sibling worktree
+`C:/Users/famla/Documents/Git/bonkey-apps/wt-<slug>` from `origin/main` and work
+there. That path is also what the liveness rule's "check the shared primary
+checkout is clean" step points at. `origin` is SSH
+(`git@github.com:Bonkey-Apps/Bonkey-Saftey.git`).
+
+## Gates — what the acceptance oracle actually is here
+
+**This repo has no test suite, no linter, and no GitHub Actions workflows.** Do
+not go hunting for `pnpm test` / `typecheck` / `lint`; those are the app repos'
+gates, which `.claude/rules/agent-liveness.md` uses as its examples, and there
+is no equivalent here.
+
+So the liveness rule's "verify the artifact, not the report" resolves to the
+**live resolver**, which is what this file already says: `dig` is the oracle,
+not the list files (rule 4), and empty output is not "blocked" — check for
+NXDOMAIN. Merging deploys nothing (rule 2), so a merged PR is never evidence a
+domain is blocked; only a gravity run plus a `dig` against `10.77.77.10` is.
+
+Name in your report exactly what you verified and what you could not. An
+unverified list change is reported as unverified, never as success.
+
+## Cross-session memory (the Obsidian vault)
+
+Containers here are ephemeral, so what an agent learns the hard way is lost
+unless written outside the container. **`bonkey-memories`**
+(`https://github.com/bonkey-apps/bonkey-memories`, normally at
+`/workspace/bonkey-memories`) is a git-backed Obsidian vault holding that
+cross-session knowledge: verified commands, gotchas, and approaches already
+tried and rejected.
+
+It is a memory aid, **not** a system of record — ADRs stay in
+`bonkey-org/docs/adr/`, audit findings in `audits/`, work-item status in Jira
+**BI**, and no secrets go in it at all (never the box's credentials or internal
+hostnames). `.claude/rules/memory-vault.md` has the full contract.
