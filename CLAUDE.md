@@ -102,7 +102,9 @@ is split by purpose:
 
 | Path | What |
 |---|---|
+| `ReadMe.md` | repo overview and entry point (note the casing) |
 | `lists/` | the lists themselves; `.claude/rules/pihole-lists.md` governs edits |
+| `adlists.txt` | the third-party adlist URLs to subscribe; only `gambling-only` is load-bearing |
 | `audits/` | dated log audits, `YYYY-MM-DD-pihole-log-audit.md` — coverage window, confirmed leaks, and what was deliberately not blocked |
 | `brave/` | Brave group-policy setup and reference |
 | `provision/` | host/VM provisioning for the box |
@@ -133,7 +135,8 @@ So the liveness rule's "verify the artifact, not the report" resolves to the
 **live resolver**, which is what this file already says: `dig` is the oracle,
 not the list files (rule 4), and empty output is not "blocked" — check for
 NXDOMAIN. Merging deploys nothing (rule 2), so a merged PR is never evidence a
-domain is blocked; only a gravity run plus a `dig` against `10.77.77.10` is.
+domain is blocked; only a subscription added by hand (for a new file) or a
+gravity run (for an existing one), then a `dig` against `10.77.77.10`, is.
 
 Name in your report exactly what you verified and what you could not. An
 unverified list change is reported as unverified, never as success.
